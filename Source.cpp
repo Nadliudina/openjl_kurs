@@ -166,6 +166,8 @@ float cube[] = {
 -1.0f, 1.0f, 1.0f,	0.0f,  1.0f,  0.0f,		0.38f,0.43f,0.68f
 };
 
+bool drag_list[36] = { false };
+
 float cursor_cube[] = {
 	//position			normal						
 -1.0f,-1.0f,-1.0f,
@@ -214,24 +216,45 @@ float cursor_cube[] = {
 float cursor_scale = 0.08f;
 
 void drag() {
-	cout << "X= " << cursorTrans.position.x + cursor_scale/2 << " : " << cursorTrans.position.x - cursor_scale / 2;
-	cout << " Y= " << cursorTrans.position.y + cursor_scale/2 << " : " << cursorTrans.position.y - cursor_scale / 2;
-	cout << " Z= " << cursorTrans.position.z  + cursor_scale/2 << " : " << cursorTrans.position.z - cursor_scale / 2 << endl;
 	for (int i = 0; i < 36; i++)
 	{
-	//	cout << "cX= " << cube[i * 9 + 0] << " cY= " << cube[i * 9 + 1]<< " cZ= " << cube[i * 9 + 2] << endl;
+
 		if ((cube[i * 9 + 0] <=   + cursor_scale/2 + cursorTrans.position.x) && (cube[i * 9 + 0] >= -cursor_scale/2  + cursorTrans.position.x)&&
 			(cube[i * 9 + 1] <=   + cursor_scale/2 + cursorTrans.position.y) && (cube[i * 9 + 1] >= -cursor_scale/2  + cursorTrans.position.y)&&
 			(cube[i * 9 + 2] <=   + cursor_scale/2 + cursorTrans.position.z) && (cube[i * 9 + 2] >= -cursor_scale/2  + cursorTrans.position.z))
 		{
+			drag_list[i] = true;
 			cout << "AAA" << endl;
+		}
+		else
+		{
+			drag_list[i] = false;
 		}
 	}
 }
 
 void drop() {
-
+	for (int i = 0; i < 36; i++)
+	{
+		drag_list[i] = false;
+	}
 }
+
+void drag_move(glm::vec3 move_to) {
+	for (int i = 0; i < 36; i++)
+	{
+		if (drag_list[i] == true)
+		{
+			cube[i * 9 + 0] += move_to.x;
+			cube[i * 9 + 1] += move_to.y;
+			cube[i * 9 + 2] += move_to.z;
+
+			cout << "______ x= " << cube[i * 9 + 0] << " y= " << cube[i * 9 + 1] << " z= " << cube[i * 9 +2] << endl;
+		}
+	}
+	cout << endl;
+}
+
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -296,9 +319,6 @@ int main()
 #pragma endregion
 
 	int box_width, box_height, channels;
-	//byte* data = stbi_load("images\\box.png", &box_width, &box_height, &channels, 0);
-
-	
 
 	ModelTransform polygonTrans1 = { glm::vec3(0.f, 0.f, 0.f),	// position
 									glm::vec3(0.f, 0.f, 0.f),	// rotation
@@ -320,7 +340,7 @@ int main()
 
 	glBindVertexArray(VAO_polygon);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_DYNAMIC_DRAW);
 
 	// position
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
@@ -359,10 +379,12 @@ int main()
 	glm::vec3 cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 	glm::vec3 ambientColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
-	glm::mat4 p = camera.GetProjectionMatrix();
-	glm::mat4 v = camera.GetViewMatrix();
-	glm::mat4 pv = p * v;
-	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 p ;
+	glm::mat4 v ;
+	glm::mat4 pv;
+	glm::mat4 model ;
+
+	glm::vec3 old_cursor=glm::vec3(0,0,0);
 	while (!glfwWindowShouldClose(win))
 	{
 		glClearColor(background.r, background.g, background.b, background.a);
@@ -377,7 +399,10 @@ int main()
 		  processInput(win, deltaTime);
 
 		glBindVertexArray(CursorArrayO);
+		old_cursor = cursorTrans.position;
 		cursorTrans.position = camera.Position + camera.Front;
+		drag_move(cursorTrans.position - old_cursor);
+
 		cursorTrans.setScale(cursor_scale);
 
 		model = glm::mat4(1.0f);
@@ -407,6 +432,12 @@ int main()
 
 		
 		glBindVertexArray(VAO_polygon);
+
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_DYNAMIC_DRAW);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
+		glEnableVertexAttribArray(0);
+
 //1
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, polygonTrans1.position);
