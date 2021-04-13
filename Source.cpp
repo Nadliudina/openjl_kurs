@@ -230,25 +230,6 @@ float cursor_cube[] = {
 -1.0f, 1.0f, 1.0f
 };
 
-void drag() {
-	for (int i = 0; i < 36; i++)
-	{
-
-		if ((cube0[i * 9 + 0] <= +cursor_scale / 2 + cursorTrans.position.x) && (cube0[i * 9 + 0] >= -cursor_scale / 2 + cursorTrans.position.x) &&
-			(cube0[i * 9 + 1] <= +cursor_scale / 2 + cursorTrans.position.y) && (cube0[i * 9 + 1] >= -cursor_scale / 2 + cursorTrans.position.y) &&
-			(cube0[i * 9 + 2] <= +cursor_scale / 2 + cursorTrans.position.z) && (cube0[i * 9 + 2] >= -cursor_scale / 2 + cursorTrans.position.z))
-		{
-			drag_list[i] = true;
-			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f);
-			cout << "AAA" << endl;
-		}
-		else
-		{
-			drag_list[i] = false;
-		}
-	}
-}
-
 ModelTransform polygonTrans1 = { glm::vec3(0.f, 0.f, 0.f),	// position
 								glm::vec3(0.f, 0.f, 0.f),	// rotation
 								glm::vec3(1.f, 1.f, 1.f) };	// scale
@@ -265,16 +246,13 @@ void is_Drag() {
 		{
 			cursorColor = glm::vec3(0.2f, 0.2f, 0.85f);
 		}
-	
 	}
-	//	system("pause");
 }
 
-void drag1() {
-	is_drag = false;
+void drag() {
 	for (int i = 0; i < 36; i++)
 	{
-		if ((cube0[i * 9 + 0] *cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) &&  (cube0[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
+		if ((cube0[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) && (cube0[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
 			(cube0[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.y) && (cube0[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.y) &&
 			(cube0[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.z) && (cube0[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.z))
 		{
@@ -287,7 +265,6 @@ void drag1() {
 			drag_list[i] = false;
 		}
 	}
-//	system("pause");
 }
 
 void drop() {
@@ -304,9 +281,9 @@ void drag_move(glm::vec3 move_to) {
 	{
 		if (drag_list[i] == true)
 		{
-			cube0[i * 9 + 0] += move_to.x ;
-			cube0[i * 9 + 1] += move_to.y ;
-			cube0[i * 9 + 2] += move_to.z ;
+			cube0[i * 9 + 0] += move_to.x /cube_scale;
+			cube0[i * 9 + 1] += move_to.y / cube_scale;
+			cube0[i * 9 + 2] += move_to.z / cube_scale;
 		}
 	}
 	cout << endl;
@@ -333,7 +310,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		switch (button)
 		{
 		case GLFW_MOUSE_BUTTON_LEFT:
-			drag1();
+			drag();
 			break;
 		case GLFW_MOUSE_BUTTON_RIGHT:
 			drop();
