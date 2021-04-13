@@ -44,11 +44,11 @@ void processInput(GLFWwindow* win, double dt)
 
 	if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(win, true);
-	if (glfwGetKey(win, GLFW_KEY_1) == GLFW_PRESS)
+	if (glfwGetKey(win, GLFW_KEY_5) == GLFW_PRESS)
 		background = { 1.0f, 0.0f, 0.0f, 1.0f };
-	if (glfwGetKey(win, GLFW_KEY_2) == GLFW_PRESS)
+	if (glfwGetKey(win, GLFW_KEY_6) == GLFW_PRESS)
 		background = { 0.0f, 1.0f, 0.0f, 1.0f };
-	if (glfwGetKey(win, GLFW_KEY_3) == GLFW_PRESS)
+	if (glfwGetKey(win, GLFW_KEY_7) == GLFW_PRESS)
 		background = { 0.0f, 0.0f, 1.0f, 1.0f };
 
 	uint32_t dir = 0;
@@ -78,10 +78,25 @@ void processInput(GLFWwindow* win, double dt)
 	camera.Rotate(xoffset, -yoffset);
 }
 
+float cursor_scale = 0.08f;
+
+float cube_scale = 1.0f;
+
+bool is_drag = false;
+
 void OnScroll(GLFWwindow* win, double x, double y)
 {
-	camera.ChangeFOV(y);
-	std::cout << "Scrolled x: " << x << ", y: " << y << ". FOV = " << camera.Fov << std::endl;
+	//camera.ChangeFOV(y);	std::cout << "Scrolled x: " << x << ", y: " << y << ". FOV = " << camera.Fov << std::endl;
+	if (y<0)
+	{
+		cube_scale *= 0.95f;
+		cursor_scale *= 0.95f;
+	}
+	else
+	{
+		cube_scale *= 1.05f;
+		cursor_scale *= 1.05f;
+	}
 }
 
 bool wireframeMode = false;
@@ -121,7 +136,7 @@ ModelTransform cursorTrans = { glm::vec3(0.f,   1.f,   0.f),	// position
 								glm::vec3(0.f,   0.f,   0.f),	// rotation
 								glm::vec3(0.02f, 0.02f, 0.02f) };	// scale
 
-float cube[] = {
+float cube0[] = {
 	//position			normal					color			
 -1.0f,-1.0f,-1.0f,	-1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
 -1.0f,-1.0f, 1.0f,	-1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
@@ -168,6 +183,8 @@ float cube[] = {
 
 bool drag_list[36] = { false };
 
+glm::vec3 cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+
 float cursor_cube[] = {
 	//position			normal						
 -1.0f,-1.0f,-1.0f,
@@ -213,17 +230,16 @@ float cursor_cube[] = {
 -1.0f, 1.0f, 1.0f
 };
 
-float cursor_scale = 0.08f;
-
 void drag() {
 	for (int i = 0; i < 36; i++)
 	{
 
-		if ((cube[i * 9 + 0] <=   + cursor_scale/2 + cursorTrans.position.x) && (cube[i * 9 + 0] >= -cursor_scale/2  + cursorTrans.position.x)&&
-			(cube[i * 9 + 1] <=   + cursor_scale/2 + cursorTrans.position.y) && (cube[i * 9 + 1] >= -cursor_scale/2  + cursorTrans.position.y)&&
-			(cube[i * 9 + 2] <=   + cursor_scale/2 + cursorTrans.position.z) && (cube[i * 9 + 2] >= -cursor_scale/2  + cursorTrans.position.z))
+		if ((cube0[i * 9 + 0] <= +cursor_scale / 2 + cursorTrans.position.x) && (cube0[i * 9 + 0] >= -cursor_scale / 2 + cursorTrans.position.x) &&
+			(cube0[i * 9 + 1] <= +cursor_scale / 2 + cursorTrans.position.y) && (cube0[i * 9 + 1] >= -cursor_scale / 2 + cursorTrans.position.y) &&
+			(cube0[i * 9 + 2] <= +cursor_scale / 2 + cursorTrans.position.z) && (cube0[i * 9 + 2] >= -cursor_scale / 2 + cursorTrans.position.z))
 		{
 			drag_list[i] = true;
+			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f);
 			cout << "AAA" << endl;
 		}
 		else
@@ -233,9 +249,52 @@ void drag() {
 	}
 }
 
-void drop() {
+ModelTransform polygonTrans1 = { glm::vec3(0.f, 0.f, 0.f),	// position
+								glm::vec3(0.f, 0.f, 0.f),	// rotation
+								glm::vec3(1.f, 1.f, 1.f) };	// scale
+
+void is_Drag() {
+	if (is_drag)
+		return;
+	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 	for (int i = 0; i < 36; i++)
 	{
+		if ((cube0[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) && (cube0[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
+			(cube0[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.y) && (cube0[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.y) &&
+			(cube0[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.z) && (cube0[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.z))
+		{
+			cursorColor = glm::vec3(0.2f, 0.2f, 0.85f);
+		}
+	
+	}
+	//	system("pause");
+}
+
+void drag1() {
+	is_drag = false;
+	for (int i = 0; i < 36; i++)
+	{
+		if ((cube0[i * 9 + 0] *cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) &&  (cube0[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
+			(cube0[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.y) && (cube0[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.y) &&
+			(cube0[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.z) && (cube0[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.z))
+		{
+			drag_list[i] = true;
+			is_drag = true;
+			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f);
+		}
+		else
+		{
+			drag_list[i] = false;
+		}
+	}
+//	system("pause");
+}
+
+void drop() {
+	is_drag = false;
+	for (int i = 0; i < 36; i++)
+	{
+		cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 		drag_list[i] = false;
 	}
 }
@@ -245,16 +304,27 @@ void drag_move(glm::vec3 move_to) {
 	{
 		if (drag_list[i] == true)
 		{
-			cube[i * 9 + 0] += move_to.x;
-			cube[i * 9 + 1] += move_to.y;
-			cube[i * 9 + 2] += move_to.z;
-
-			cout << "______ x= " << cube[i * 9 + 0] << " y= " << cube[i * 9 + 1] << " z= " << cube[i * 9 +2] << endl;
+			cube0[i * 9 + 0] += move_to.x ;
+			cube0[i * 9 + 1] += move_to.y ;
+			cube0[i * 9 + 2] += move_to.z ;
 		}
 	}
 	cout << endl;
 }
 
+void drag_move_to(glm::vec3 move_to) {
+	cout << cube_scale << endl;
+	for (int i = 0; i < 36; i++)
+	{
+		if (drag_list[i] == true)
+		{
+			cube0[i * 9 + 0] = move_to.x ;
+			cube0[i * 9 + 1] = move_to.y ;
+			cube0[i * 9 + 2] = move_to.z ;
+		}
+	}
+	cout << endl;
+}
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
@@ -263,12 +333,10 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 		switch (button)
 		{
 		case GLFW_MOUSE_BUTTON_LEFT:
-			drag();
-		//glFrontFace(GL_CCW);
+			drag1();
 			break;
 		case GLFW_MOUSE_BUTTON_RIGHT:
 			drop();
-		//	glFrontFace(GL_CW);
 			break;
 		default:
 			break;
@@ -320,13 +388,7 @@ int main()
 
 	int box_width, box_height, channels;
 
-	ModelTransform polygonTrans1 = { glm::vec3(0.f, 0.f, 0.f),	// position
-									glm::vec3(0.f, 0.f, 0.f),	// rotation
-									glm::vec3(1.f, 1.f, 1.f) };	// scale
 
-	ModelTransform polygonTrans2 = { glm::vec3(0.f, 0.f, 0.f),	// position
-									glm::vec3(0.f, 0.f, 0.f),	// rotation
-									glm::vec3(1.f, 1.f, 1.f) };	// scale
 
 	ModelTransform lightTrans = { glm::vec3(0.f, 0.f, 0.f),	// position
 									glm::vec3(0.f, 0.f, 0.f),	// rotation
@@ -340,7 +402,7 @@ int main()
 
 	glBindVertexArray(VAO_polygon);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cube0), cube0, GL_DYNAMIC_DRAW);
 
 	// position
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
@@ -376,7 +438,7 @@ int main()
 
 	glm::vec3 lightPos = glm::vec3(1.5f, 1.3f, -2.5f);
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	glm::vec3 cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+	
 	glm::vec3 ambientColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	glm::mat4 p ;
@@ -402,6 +464,8 @@ int main()
 		old_cursor = cursorTrans.position;
 		cursorTrans.position = camera.Position + camera.Front;
 		drag_move(cursorTrans.position - old_cursor);
+	//	drag_move_to(cursorTrans.position);
+		is_Drag();
 
 		cursorTrans.setScale(cursor_scale);
 
@@ -421,20 +485,26 @@ int main()
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	
-	//	polygonTrans1.setScale(0.2f);
+		polygonTrans1.setScale(cube_scale);
 
-		polygonTrans2.rotation.z = glfwGetTime() * 30.0;
-		polygonTrans2.position.x = 0.6f * cos(glfwGetTime() * 0.5 + 3.14158f);
-		polygonTrans2.position.y = 0.6f * sin(glfwGetTime() * 0.5 + 3.14158f);
-		polygonTrans2.setScale(0.2f);
 
+		
+		// LIGH
 		lightTrans.position = lightPos;
+		model = glm::mat4(1.0f);
+		model = glm::translate(model, lightTrans.position);
+		model = glm::scale(model, lightTrans.scale);
 
+		light_shader->use();
+		light_shader->setMatrix4F("pv", pv);
+		light_shader->setMatrix4F("model", model);
+		light_shader->setVec3("lightColor", lightColor);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		
 		glBindVertexArray(VAO_polygon);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(cube0), cube0, GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 
@@ -464,42 +534,8 @@ int main()
 		cursor_shader->setMatrix4F("model", model);
 		glDrawArrays(GL_POINTS, 0, 36);
 
-		// 2
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, polygonTrans2.position);
-		model = glm::rotate(model, glm::radians(polygonTrans2.rotation.x), glm::vec3(1.f, 0.f, 0.f));
-		model = glm::rotate(model, glm::radians(polygonTrans2.rotation.y), glm::vec3(0.f, 1.f, 0.f));
-		model = glm::rotate(model, glm::radians(polygonTrans2.rotation.z), glm::vec3(0.f, 0.f, 1.f));
-		model = glm::scale(model, polygonTrans2.scale);
-
-		polygon_shader->use();
-		polygon_shader->setMatrix4F("pv", pv);
-		polygon_shader->setMatrix4F("model", model);
-		polygon_shader->setBool("wireframeMode", wireframeMode);
-		polygon_shader->setVec3("viewPos", camera.Position);
-		polygon_shader->setVec3("lightPos", lightPos);
-		polygon_shader->setVec3("lightColor", lightColor);
-		polygon_shader->setVec3("ambientColor", ambientColor);
-
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		/// points
-		cursor_shader->use();
-		cursor_shader->setVec3("PointsColor", cursorColor);
-		cursor_shader->setMatrix4F("pv", pv);
-		cursor_shader->setMatrix4F("model", model);
-		glDrawArrays(GL_POINTS, 0, 36);
-
 	
-		// LIGHT
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, lightTrans.position);
-		model = glm::scale(model, lightTrans.scale);
-
-		light_shader->use();
-		light_shader->setMatrix4F("pv", pv);
-		light_shader->setMatrix4F("model", model);
-		light_shader->setVec3("lightColor", lightColor);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+	
 
 
 		glfwSwapBuffers(win);
