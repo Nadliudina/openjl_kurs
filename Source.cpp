@@ -95,38 +95,7 @@ float cube0[] = {
 -1.0f, 1.0f, 1.0f,	 0.0f,  1.0f,  0.0f,	0.38f,0.43f,0.68f
 };
 
-float cube1[] = {
-
- 1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
--1.0f,-1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
--1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f, //на нас
-
- 
-
- 1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,//
- 0.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
- 0.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f, //на нас
-
- 0.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
--1.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
--1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
- 
- 1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
- 1.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
- 0.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
-
- 0.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
- 0.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
--1.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,//
-
-
-/////////////
-1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
- 1.0f,-1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
--1.0f,-1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
-
-    
-};
+float * cube1,*cube2;
 
 float cursor_cube[] = {
 	//position			normal						
@@ -177,7 +146,6 @@ bool drag_list[36] = { false };
 
 glm::vec3 cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 
-
 glm::vec3 point0;
 glm::vec3 point1;
 glm::vec3 point2;
@@ -192,6 +160,16 @@ glm::vec3 point10;
 glm::vec3 point11;
 
 #pragma endregion
+
+void cube_init() {
+
+	cube1 = cube0;
+	for (int i = 0; i < cube_size; i++)
+	{
+		cout << cube1[i];
+	}
+
+}
 
 void x4_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c) {
 	glm::vec3 d, e, f;
@@ -222,73 +200,73 @@ void x4_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c) {
 
 void detail_up() 
 {
-	if (detail_level == 2)
-		return;
+	cube2 = new float[cube_size * 4];
+
+
+
 	for (int i = 0; i < cube_size/9; i++)
 	{
-
 		for (int j = 0; j < 4; j++)
 		{
 			for (int t = 3; t < 9; t++)
-			cube1[i*36+j*9+t ] = cube0[i*9+t ];
+			cube2[i*36+j*9+t ] = cube1[i*9+t ];
 		}
 		if ((i) % 3 == 0)
 		{
 			x4_triangle(
-				glm::vec3(cube0[i * 9],		 cube0[i * 9 + 1],      cube0[i * 9 + 2]), 
-				glm::vec3(cube0[i * 9 + 9],  cube0[i * 9 + 9 + 1],  cube0[i * 9 + 9 + 2]),
-				glm::vec3(cube0[i * 9 + 18], cube0[i * 9 + 18 + 1], cube0[i * 9 + 18 + 2]));
-			cube1[i * 36]             = point0.x;  cube1[i * 36 + 1]           = point0.y;  cube1[i * 36 + 2]          = point0.z;
-			cube1[(9 * 1)  + i * 36]  = point1.x;  cube1[(9 * 1) + i * 36 + 1] = point1.y;  cube1[(9 * 1) +i * 36 + 2] = point1.z;
-			cube1[(9 * 2)  + i * 36]  = point2.x;  cube1[(9 * 2) + i * 36 + 1] = point2.y;  cube1[(9 * 2) +i * 36 + 2] = point2.z;
-			cube1[(9 * 3)  + i * 36]  = point3.x;  cube1[(9 * 3) + i * 36 + 1] = point3.y;  cube1[(9 * 3) +i * 36 + 2] = point3.z;
-			cube1[(9 * 4)  + i * 36]  = point4.x;  cube1[(9 * 4) + i * 36 + 1] = point4.y;  cube1[(9 * 4) +i * 36 + 2] = point4.z;
-			cube1[(9 * 5)  + i * 36]  = point5.x;  cube1[(9 * 5) + i * 36 + 1] = point5.y;  cube1[(9 * 5) +i * 36 + 2] = point5.z;
-			cube1[(9 * 6)  + i * 36]  = point6.x;  cube1[(9 * 6) + i * 36 + 1] = point6.y;  cube1[(9 * 6) +i * 36 + 2] = point6.z;
-			cube1[(9 * 7)  + i * 36]  = point7.x;  cube1[(9 * 7) + i * 36 + 1] = point7.y;  cube1[(9 * 7) +i * 36 + 2] = point7.z;
-			cube1[(9 * 8)  + i * 36]  = point8.x;  cube1[(9 * 8) + i * 36 + 1] = point8.y;  cube1[(9 * 8) +i * 36 + 2] = point8.z;
-			cube1[(9 * 9)  + i * 36]  = point9.x;  cube1[(9 * 9) + i * 36 + 1] = point9.y;  cube1[(9 * 9) +i * 36 + 2] = point9.z;
-			cube1[(9 * 10) + i  * 36] = point10.x; cube1[(9 * 10)+ i * 36 + 1] = point10.y; cube1[(9 * 10)+i * 36 + 2] = point10.z;
-			cube1[(9 * 11) + i  * 36] = point11.x; cube1[(9 * 11)+ i * 36 + 1] = point11.y; cube1[(9 * 11)+i * 36 + 2] = point11.z;
+				glm::vec3(cube1[i * 9],		 cube1[i * 9 + 1],      cube1[i * 9 + 2]), 
+				glm::vec3(cube1[i * 9 + 9],  cube1[i * 9 + 9 + 1],  cube1[i * 9 + 9 + 2]),
+				glm::vec3(cube1[i * 9 + 18], cube1[i * 9 + 18 + 1], cube1[i * 9 + 18 + 2]));
+			cube2[i * 36]             = point0.x;  cube2[i * 36 + 1]           = point0.y;  cube2[i * 36 + 2]          = point0.z;
+			cube2[(9 * 1)  + i * 36]  = point1.x;  cube2[(9 * 1) + i * 36 + 1] = point1.y;  cube2[(9 * 1) +i * 36 + 2] = point1.z;
+			cube2[(9 * 2)  + i * 36]  = point2.x;  cube2[(9 * 2) + i * 36 + 1] = point2.y;  cube2[(9 * 2) +i * 36 + 2] = point2.z;
+			cube2[(9 * 3)  + i * 36]  = point3.x;  cube2[(9 * 3) + i * 36 + 1] = point3.y;  cube2[(9 * 3) +i * 36 + 2] = point3.z;
+			cube2[(9 * 4)  + i * 36]  = point4.x;  cube2[(9 * 4) + i * 36 + 1] = point4.y;  cube2[(9 * 4) +i * 36 + 2] = point4.z;
+			cube2[(9 * 5)  + i * 36]  = point5.x;  cube2[(9 * 5) + i * 36 + 1] = point5.y;  cube2[(9 * 5) +i * 36 + 2] = point5.z;
+			cube2[(9 * 6)  + i * 36]  = point6.x;  cube2[(9 * 6) + i * 36 + 1] = point6.y;  cube2[(9 * 6) +i * 36 + 2] = point6.z;
+			cube2[(9 * 7)  + i * 36]  = point7.x;  cube2[(9 * 7) + i * 36 + 1] = point7.y;  cube2[(9 * 7) +i * 36 + 2] = point7.z;
+			cube2[(9 * 8)  + i * 36]  = point8.x;  cube2[(9 * 8) + i * 36 + 1] = point8.y;  cube2[(9 * 8) +i * 36 + 2] = point8.z;
+			cube2[(9 * 9)  + i * 36]  = point9.x;  cube2[(9 * 9) + i * 36 + 1] = point9.y;  cube2[(9 * 9) +i * 36 + 2] = point9.z;
+			cube2[(9 * 10) + i  * 36] = point10.x; cube2[(9 * 10)+ i * 36 + 1] = point10.y; cube2[(9 * 10)+i * 36 + 2] = point10.z;
+			cube2[(9 * 11) + i  * 36] = point11.x; cube2[(9 * 11)+ i * 36 + 1] = point11.y; cube2[(9 * 11)+i * 36 + 2] = point11.z;
 
 		}
 	}
 	cout << "__________"<<cube_size<<"_______" << verts << "_____\n";
 	
-	for (int i = 0; i < cube_size / 9; i++)
-	{
-		for (int t = 0; t < 9; t++)
-		{
-			if (cube0[i * 9 + t] >= 0)cout << " ";
-			cout << cube0[i * 9 + t] << " ";
-		
-		}
-		cout << endl;
-	}
-	cout << endl; cout << endl;
+	//for (int i = 0; i < cube_size / 9; i++)
+	//{
+	//	for (int t = 0; t < 9; t++)
+	//	{
+	//		if (cube0[i * 9 + t] >= 0)cout << " ";
+	//		cout << cube0[i * 9 + t] << " ";
+	//	
+	//	}
+	//	cout << endl;
+	//}
+	//cout << endl; cout << endl;
 	for (int i = 0; i < cube_size / 9; i++)
 	{
 		for (int j = 0; j < 4; j++)
 		{
 			for (int t = 0; t < 9; t++)
 			{
-				if (cube1[i * 36 + j * 9 + t] >= 0)cout << " ";
-				cout << cube1[i * 36 + j * 9 + t] << " ";
+				if (cube2[i * 36 + j * 9 + t] >= 0)cout << " ";
+				cout << cube2[i * 36 + j * 9 + t] << " ";
 			}
 			cout << endl;
 		}
 		cout << endl;
 	}
 
-	glm::vec3 a = glm::vec3(1.0f, -1.5f, 2.5f);
-	glm::vec3 b = glm::vec3(3.5f, 4.5f, 0.5f);
-	glm::vec3 c = a + b;
-	c *= 0.5;
-	cout << "X= " << c.x << "Y= " << c.y << "Z= " << c.z << endl;
-//	system("pause");
-		cout << endl; cout << endl;
-	detail_level++;
+
+	cout << endl; cout << endl;
+//	detail_level++;
 	cube_size *= 4;
+
+	//delete[]cube1;
+	cube1 = cube2;
+
 }
 
 void OnResize(GLFWwindow* win, int width, int height)
@@ -521,8 +499,6 @@ int main()
 
 	int box_width, box_height, channels;
 
-
-
 	ModelTransform lightTrans = { glm::vec3(0.f, 0.f, 0.f),	// position
 									glm::vec3(0.f, 0.f, 0.f),	// rotation
 									glm::vec3(0.1f, 0.1f, 0.1f) };	// scale
@@ -580,7 +556,7 @@ int main()
 
 	glm::vec3 old_cursor=glm::vec3(0,0,0);
 
-//	cube_size = 324;
+	cube_init();
 	while (!glfwWindowShouldClose(win))
 	{
 		glClearColor(background.r, background.g, background.b, background.a);
@@ -621,8 +597,6 @@ int main()
 	
 		polygonTrans1.setScale(cube_scale);
 
-
-		
 		// LIGH
 		lightTrans.position = lightPos;
 		model = glm::mat4(1.0f);
