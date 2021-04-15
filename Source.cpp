@@ -176,6 +176,7 @@ void cube_init() {
 			for (int t = 0; t < 9; t++)
 				cube2[i * 9  + t] = cube1[i * 9 + t];
 	}
+	cube1 = cube2;
 
 }
 
@@ -592,7 +593,7 @@ int main()
 		cursor_shader->setMatrix4F("pv", pv);
 		cursor_shader->setMatrix4F("model", model);
 
-		glDrawArrays(GL_TRIANGLES, 0, verts);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	
 		polygonTrans1.setScale(cube_scale);
@@ -607,7 +608,18 @@ int main()
 		light_shader->setMatrix4F("pv", pv);
 		light_shader->setMatrix4F("model", model);
 		light_shader->setVec3("lightColor", lightColor);
-		glDrawArrays(GL_TRIANGLES, 0, verts);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+
+		for (int i = 0; i < verts; i++)
+		{
+			lightTrans.position = glm::vec3(cube2[i * 9], cube2[i * 9+1], cube2[i * 9+2]) * cube_scale;
+			model = glm::mat4(1.0f);
+			model = glm::translate(model, lightTrans.position);
+			model = glm::scale(model,glm::vec3(0.01f, 0.01f, 0.01f));
+			light_shader->setMatrix4F("model", model);
+			glDrawArrays(GL_TRIANGLES, 0, 36);
+		}
+
 		
 		glBindVertexArray(VAO_polygon);
 
