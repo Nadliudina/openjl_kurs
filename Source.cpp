@@ -46,7 +46,7 @@ bool wireframeMode = false;
 
 int verts = 36;
 
-int detail_level = 1;
+//int detail_level = 1;
 
 int cube_size = 324;
 
@@ -142,7 +142,7 @@ float cursor_cube[] = {
 -1.0f, 1.0f, 1.0f
 };
 
-bool drag_list[36] = { false };
+bool *drag_list;
 
 glm::vec3 cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 
@@ -162,11 +162,19 @@ glm::vec3 point11;
 #pragma endregion
 
 void cube_init() {
-
+	drag_list = new bool[verts];
+	for (int i = 0; i < verts; i++)
+		drag_list[i] = false;
 	cube1 = cube0;
 	for (int i = 0; i < cube_size; i++)
 	{
 		cout << cube1[i];
+	}
+	cube2 = new float[cube_size ];
+	for (int i = 0; i < cube_size / 9; i++)
+	{
+			for (int t = 0; t < 9; t++)
+				cube2[i * 9  + t] = cube1[i * 9 + t];
 	}
 
 }
@@ -202,8 +210,6 @@ void detail_up()
 {
 	cube2 = new float[cube_size * 4];
 
-
-
 	for (int i = 0; i < cube_size/9; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -234,17 +240,6 @@ void detail_up()
 	}
 	cout << "__________"<<cube_size<<"_______" << verts << "_____\n";
 	
-	//for (int i = 0; i < cube_size / 9; i++)
-	//{
-	//	for (int t = 0; t < 9; t++)
-	//	{
-	//		if (cube0[i * 9 + t] >= 0)cout << " ";
-	//		cout << cube0[i * 9 + t] << " ";
-	//	
-	//	}
-	//	cout << endl;
-	//}
-	//cout << endl; cout << endl;
 	for (int i = 0; i < cube_size / 9; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -259,12 +254,15 @@ void detail_up()
 		cout << endl;
 	}
 
-
 	cout << endl; cout << endl;
 //	detail_level++;
 	cube_size *= 4;
-
-	//delete[]cube1;
+	verts *= 4;
+	delete[]drag_list;
+	drag_list = new bool[verts];
+	for (int i = 0; i < verts; i++)
+		drag_list[i] = false;
+	//delete[cube_size/4]cube1;
 	cube1 = cube2;
 
 }
@@ -374,9 +372,9 @@ void is_Drag() {
 	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 	for (int i = 0; i < verts; i++)
 	{
-		if ((cube0[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) && (cube0[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
-			(cube0[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.y) && (cube0[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.y) &&
-			(cube0[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.z) && (cube0[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.z))
+		if ((cube2[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) && (cube2[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
+			(cube2[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.y) && (cube2[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.y) &&
+			(cube2[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.z) && (cube2[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.z))
 		{
 			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f);
 		}
@@ -386,9 +384,9 @@ void is_Drag() {
 void drag() {
 	for (int i = 0; i < verts; i++)
 	{
-		if ((cube0[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) && (cube0[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
-			(cube0[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.y) && (cube0[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.y) &&
-			(cube0[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.z) && (cube0[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.z))
+		if ((cube2[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) && (cube2[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
+			(cube2[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.y) && (cube2[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.y) &&
+			(cube2[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.z) && (cube2[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.z))
 		{
 			drag_list[i] = true;
 			is_drag = true;
@@ -415,9 +413,9 @@ void drag_move(glm::vec3 move_to) {
 	{
 		if (drag_list[i] == true)
 		{
-			cube0[i * 9 + 0] += move_to.x /cube_scale;
-			cube0[i * 9 + 1] += move_to.y / cube_scale;
-			cube0[i * 9 + 2] += move_to.z / cube_scale;
+			cube2[i * 9 + 0] += move_to.x /cube_scale;
+			cube2[i * 9 + 1] += move_to.y / cube_scale;
+			cube2[i * 9 + 2] += move_to.z / cube_scale;
 		}
 	}
 	cout << endl;
@@ -429,9 +427,9 @@ void drag_move_to(glm::vec3 move_to) {
 	{
 		if (drag_list[i] == true)
 		{
-			cube0[i * 9 + 0] = move_to.x ;
-			cube0[i * 9 + 1] = move_to.y ;
-			cube0[i * 9 + 2] = move_to.z ;
+			cube2[i * 9 + 0] = move_to.x ;
+			cube2[i * 9 + 1] = move_to.y ;
+			cube2[i * 9 + 2] = move_to.z ;
 		}
 	}
 	cout << endl;
@@ -503,6 +501,8 @@ int main()
 									glm::vec3(0.f, 0.f, 0.f),	// rotation
 									glm::vec3(0.1f, 0.1f, 0.1f) };	// scale
 
+	cube_init();
+
 #pragma region BUFFERS INITIALIZATION
 
 	unsigned int VBO_polygon, VAO_polygon;
@@ -511,7 +511,7 @@ int main()
 
 	glBindVertexArray(VAO_polygon);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(cube0), cube0, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float)*cube_size, cube2, GL_DYNAMIC_DRAW);
 
 	// position
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
@@ -556,7 +556,7 @@ int main()
 
 	glm::vec3 old_cursor=glm::vec3(0,0,0);
 
-	cube_init();
+
 	while (!glfwWindowShouldClose(win))
 	{
 		glClearColor(background.r, background.g, background.b, background.a);
@@ -612,7 +612,7 @@ int main()
 		glBindVertexArray(VAO_polygon);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(cube0), cube0, GL_DYNAMIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * cube_size, cube2, GL_DYNAMIC_DRAW);
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
 		glEnableVertexAttribArray(0);
 
