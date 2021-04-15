@@ -17,7 +17,7 @@ uniform vec3 ambientColor;
 
 void main()
 {
-    vec3 ambient = ambientColor*0.2f;
+    vec3 ambient = ambientColor*0.5f;
 
     vec3 norm = normalize(vertNormal);
     vec3 lightDir = normalize(FragPos - lightPos);

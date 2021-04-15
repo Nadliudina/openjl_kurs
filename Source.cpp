@@ -30,53 +30,11 @@ struct Color {
 	float r, g, b, a;
 };
 
+#pragma region lands
+
 Color background = { 0.f, 0.f, 0.f, 1.f };
 
 Camera camera(glm::vec3(0.f, 0.f, -2.f));
-
-void OnResize(GLFWwindow* win, int width, int height)
-{
-	glViewport(0, 0, width, height);
-}
-
-void processInput(GLFWwindow* win, double dt)
-{
-
-	if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(win, true);
-	if (glfwGetKey(win, GLFW_KEY_5) == GLFW_PRESS)
-		background = { 1.0f, 0.0f, 0.0f, 1.0f };
-	if (glfwGetKey(win, GLFW_KEY_6) == GLFW_PRESS)
-		background = { 0.0f, 1.0f, 0.0f, 1.0f };
-	if (glfwGetKey(win, GLFW_KEY_7) == GLFW_PRESS)
-		background = { 0.0f, 0.0f, 1.0f, 1.0f };
-
-	uint32_t dir = 0;
-
-	if (glfwGetKey(win, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
-		dir |= CAM_UP;
-	if (glfwGetKey(win, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
-		dir |= CAM_DOWN;
-	if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS)
-		dir |= CAM_FORWARD;
-	if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS)
-		dir |= CAM_BACKWARD;
-	if (glfwGetKey(win, GLFW_KEY_A) == GLFW_PRESS)
-		dir |= CAM_LEFT;
-	if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS)
-		dir |= CAM_RIGHT;
-
-	double newx = 0.f, newy = 0.f;
-	glfwGetCursorPos(win, &newx, &newy);
-	static double x = newx, y = newy;
-	double xoffset = newx - x;
-	double yoffset = newy - y;
-	x = newx;
-	y = newy;
-
-	camera.Move(dir, dt);
-	camera.Rotate(xoffset, -yoffset);
-}
 
 float cursor_scale = 0.08f;
 
@@ -84,106 +42,91 @@ float cube_scale = 1.0f;
 
 bool is_drag = false;
 
-void OnScroll(GLFWwindow* win, double x, double y)
-{
-	//camera.ChangeFOV(y);	std::cout << "Scrolled x: " << x << ", y: " << y << ". FOV = " << camera.Fov << std::endl;
-	if (y<0)
-	{
-		cube_scale *= 0.95f;
-		cursor_scale *= 0.95f;
-	}
-	else
-	{
-		cube_scale *= 1.05f;
-		cursor_scale *= 1.05f;
-	}
-}
-
 bool wireframeMode = false;
 
-void UpdatePolygoneMode()
-{
-	if (wireframeMode)
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-	else
-		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-}
+int verts = 36;
 
-void OnKeyAction(GLFWwindow* win, int key, int scancode, int action, int mods)
-{
-	if (action == GLFW_PRESS)
-	{
-		switch (key)
-		{
-		case GLFW_KEY_SPACE:
-			wireframeMode = !wireframeMode;
-			UpdatePolygoneMode();
-			break;
-		case GLFW_KEY_R:
-			glFrontFace(GL_CCW);
-			break;
-		case GLFW_KEY_T:
-			glFrontFace(GL_CW);
-			break;
-		case GLFW_MOUSE_BUTTON_RIGHT:
-			glFrontFace(GL_CW);
-			break;
-		}
-	}
-}
+int detail_level = 1;
 
-ModelTransform cursorTrans = { glm::vec3(0.f,   1.f,   0.f),	// position
-								glm::vec3(0.f,   0.f,   0.f),	// rotation
-								glm::vec3(0.02f, 0.02f, 0.02f) };	// scale
+int cube_size = 324;
 
 float cube0[] = {
 	//position			normal					color			
 -1.0f,-1.0f,-1.0f,	-1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
 -1.0f,-1.0f, 1.0f,	-1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
--1.0f, 1.0f, 1.0f,	-1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,//право
+-1.0f, 1.0f, 1.0f,	-1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,//право 18*6*3=324
 -1.0f,-1.0f,-1.0f,	-1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
 -1.0f, 1.0f, 1.0f,	-1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
 -1.0f, 1.0f,-1.0f,	-1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
 
- 1.0f, 1.0f,-1.0f,	0.0f,  0.0f, -1.0f, 	0.38f,0.43f,0.68f,
--1.0f,-1.0f,-1.0f,	0.0f,  0.0f, -1.0f, 	0.38f,0.43f,0.68f,
--1.0f, 1.0f,-1.0f,	0.0f,  0.0f, -1.0f, 	0.38f,0.43f,0.68f, //на нас
- 1.0f, 1.0f,-1.0f,	0.0f,  0.0f, -1.0f,		0.38f,0.43f,0.68f,
- 1.0f,-1.0f,-1.0f,	0.0f,  0.0f, -1.0f,		0.38f,0.43f,0.68f,
--1.0f,-1.0f,-1.0f,	0.0f,  0.0f, -1.0f,		0.38f,0.43f,0.68f,
-
- 1.0f,-1.0f, 1.0f,	0.0f, -1.0f,  0.0f,		0.38f,0.43f,0.68f,
--1.0f,-1.0f,-1.0f,	0.0f, -1.0f,  0.0f,		0.38f,0.43f,0.68f,
- 1.0f,-1.0f,-1.0f,	0.0f, -1.0f,  0.0f,		0.38f,0.43f,0.68f,//низ
- 1.0f,-1.0f, 1.0f,	0.0f, -1.0f,  0.0f,		0.38f,0.43f,0.68f,
--1.0f,-1.0f, 1.0f,	0.0f, -1.0f,  0.0f,		0.38f,0.43f,0.68f,
--1.0f,-1.0f,-1.0f,	0.0f, -1.0f,  0.0f,		0.38f,0.43f,0.68f,
-
--1.0f, 1.0f, 1.0f,	0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
--1.0f,-1.0f, 1.0f,	0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
- 1.0f,-1.0f, 1.0f,	0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,//от нас
- 1.0f, 1.0f, 1.0f,	0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
--1.0f, 1.0f, 1.0f,	0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
- 1.0f,-1.0f, 1.0f,	0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
-
- 1.0f, 1.0f, 1.0f,	1.0f,  0.0f,  0.0f,		0.38f,0.43f,0.68f,
- 1.0f,-1.0f,-1.0f,	1.0f,  0.0f,  0.0f,		0.38f,0.43f,0.68f,
- 1.0f, 1.0f,-1.0f,	1.0f,  0.0f,  0.0f,		0.38f,0.43f,0.68f,//лево
- 1.0f,-1.0f,-1.0f,	1.0f,  0.0f,  0.0f,		0.38f,0.43f,0.68f,
- 1.0f, 1.0f, 1.0f,	1.0f,  0.0f,  0.0f,		0.38f,0.43f,0.68f,
- 1.0f,-1.0f, 1.0f,	1.0f,  0.0f,  0.0f,		0.38f,0.43f,0.68f,
-
- 1.0f, 1.0f, 1.0f,	0.0f,  1.0f,  0.0f,		0.38f,0.43f,0.68f,
- 1.0f, 1.0f,-1.0f,	0.0f,  1.0f,  0.0f,		0.38f,0.43f,0.68f,
--1.0f, 1.0f,-1.0f,	0.0f,  1.0f,  0.0f,		0.38f,0.43f,0.68f,//верх
- 1.0f, 1.0f, 1.0f,	0.0f,  1.0f,  0.0f,		0.38f,0.43f,0.68f,
--1.0f, 1.0f,-1.0f,	0.0f,  1.0f,  0.0f,		0.38f,0.43f,0.68f,
--1.0f, 1.0f, 1.0f,	0.0f,  1.0f,  0.0f,		0.38f,0.43f,0.68f
+ 1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+-1.0f,-1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+-1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f, //на нас
+ 1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
+ 1.0f,-1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
+-1.0f,-1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
+					 
+ 1.0f,-1.0f, 1.0f,	 0.0f, -1.0f,  0.0f,	0.38f,0.43f,0.68f,
+-1.0f,-1.0f,-1.0f,	 0.0f, -1.0f,  0.0f,	0.38f,0.43f,0.68f,
+ 1.0f,-1.0f,-1.0f,	 0.0f, -1.0f,  0.0f,	0.38f,0.43f,0.68f,//низ
+ 1.0f,-1.0f, 1.0f,	 0.0f, -1.0f,  0.0f,	0.38f,0.43f,0.68f,
+-1.0f,-1.0f, 1.0f,	 0.0f, -1.0f,  0.0f,	0.38f,0.43f,0.68f,
+-1.0f,-1.0f,-1.0f,	 0.0f, -1.0f,  0.0f,	0.38f,0.43f,0.68f,
+					 
+-1.0f, 1.0f, 1.0f,	 0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
+-1.0f,-1.0f, 1.0f,	 0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
+ 1.0f,-1.0f, 1.0f,	 0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,//от нас
+ 1.0f, 1.0f, 1.0f,	 0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
+-1.0f, 1.0f, 1.0f,	 0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
+ 1.0f,-1.0f, 1.0f,	 0.0f,  0.0f, 1.0f,		0.38f,0.43f,0.68f,
+					 
+ 1.0f, 1.0f, 1.0f,	 1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
+ 1.0f,-1.0f,-1.0f,	 1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
+ 1.0f, 1.0f,-1.0f,	 1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,//лево
+ 1.0f,-1.0f,-1.0f,	 1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
+ 1.0f, 1.0f, 1.0f,	 1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
+ 1.0f,-1.0f, 1.0f,	 1.0f,  0.0f,  0.0f,	0.38f,0.43f,0.68f,
+					 
+ 1.0f, 1.0f, 1.0f,	 0.0f,  1.0f,  0.0f,	0.38f,0.43f,0.68f,
+ 1.0f, 1.0f,-1.0f,	 0.0f,  1.0f,  0.0f,	0.38f,0.43f,0.68f,
+-1.0f, 1.0f,-1.0f,	 0.0f,  1.0f,  0.0f,	0.38f,0.43f,0.68f,//верх
+ 1.0f, 1.0f, 1.0f,	 0.0f,  1.0f,  0.0f,	0.38f,0.43f,0.68f,
+-1.0f, 1.0f,-1.0f,	 0.0f,  1.0f,  0.0f,	0.38f,0.43f,0.68f,
+-1.0f, 1.0f, 1.0f,	 0.0f,  1.0f,  0.0f,	0.38f,0.43f,0.68f
 };
 
-bool drag_list[36] = { false };
+float cube1[] = {
 
-glm::vec3 cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+ 1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+-1.0f,-1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+-1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f, //на нас
+
+ 
+
+ 1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,//
+ 0.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+ 0.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f, //на нас
+
+ 0.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+-1.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+-1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
+ 
+ 1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+ 1.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+ 0.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+
+ 0.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+ 0.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,
+-1.0f, 0.0f,-1.0f,	 0.0f, 0.0f, -1.0f, 	0.38f,0.43f,0.68f,//
+
+
+/////////////
+1.0f, 1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
+ 1.0f,-1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
+-1.0f,-1.0f,-1.0f,	 0.0f, 0.0f, -1.0f,		0.38f,0.43f,0.68f,
+
+    
+};
 
 float cursor_cube[] = {
 	//position			normal						
@@ -230,6 +173,219 @@ float cursor_cube[] = {
 -1.0f, 1.0f, 1.0f
 };
 
+bool drag_list[36] = { false };
+
+glm::vec3 cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+
+
+glm::vec3 point0;
+glm::vec3 point1;
+glm::vec3 point2;
+glm::vec3 point3;
+glm::vec3 point4;
+glm::vec3 point5;
+glm::vec3 point6;
+glm::vec3 point7;
+glm::vec3 point8;
+glm::vec3 point9;
+glm::vec3 point10;
+glm::vec3 point11;
+
+#pragma endregion
+
+void x4_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c) {
+	glm::vec3 d, e, f;
+	d = (a + b); d *= 0.5f;
+	e = (b + c); e *= 0.5f;
+	f = (c + a); f *= 0.5f;
+
+	cout << "A :: X= " << a.x << " Y= " << a.y << " Z= " << a.z << endl;
+	cout << "B :: X= " << b.x << " Y= " << b.y << " Z= " << b.z << endl;
+	cout << "C :: X= " << c.x << " Y= " << c.y << " Z= " << c.z << endl;
+	cout << "D :: X= " << d.x << " Y= " << d.y << " Z= " << d.z << endl;
+	cout << "E :: X= " << e.x << " Y= " << e.y << " Z= " << e.z << endl;
+	cout << "F :: X= " << f.x << " Y= " << f.y << " Z= " << f.z << endl << endl;
+
+	point0 = a;
+	point1 = d;
+	point2 = f;
+	point3 = d;
+	point4 = b;
+	point5 = e;
+	point6 = e;
+	point7 = c;
+	point8 = f;
+	point9 = e;
+	point10= f;
+	point11= d;
+}
+
+void detail_up() 
+{
+	if (detail_level == 2)
+		return;
+	for (int i = 0; i < cube_size/9; i++)
+	{
+
+		for (int j = 0; j < 4; j++)
+		{
+			for (int t = 3; t < 9; t++)
+			cube1[i*36+j*9+t ] = cube0[i*9+t ];
+		}
+		if ((i) % 3 == 0)
+		{
+			x4_triangle(
+				glm::vec3(cube0[i * 9],		 cube0[i * 9 + 1],      cube0[i * 9 + 2]), 
+				glm::vec3(cube0[i * 9 + 9],  cube0[i * 9 + 9 + 1],  cube0[i * 9 + 9 + 2]),
+				glm::vec3(cube0[i * 9 + 18], cube0[i * 9 + 18 + 1], cube0[i * 9 + 18 + 2]));
+			cube1[i * 36]             = point0.x;  cube1[i * 36 + 1]           = point0.y;  cube1[i * 36 + 2]          = point0.z;
+			cube1[(9 * 1)  + i * 36]  = point1.x;  cube1[(9 * 1) + i * 36 + 1] = point1.y;  cube1[(9 * 1) +i * 36 + 2] = point1.z;
+			cube1[(9 * 2)  + i * 36]  = point2.x;  cube1[(9 * 2) + i * 36 + 1] = point2.y;  cube1[(9 * 2) +i * 36 + 2] = point2.z;
+			cube1[(9 * 3)  + i * 36]  = point3.x;  cube1[(9 * 3) + i * 36 + 1] = point3.y;  cube1[(9 * 3) +i * 36 + 2] = point3.z;
+			cube1[(9 * 4)  + i * 36]  = point4.x;  cube1[(9 * 4) + i * 36 + 1] = point4.y;  cube1[(9 * 4) +i * 36 + 2] = point4.z;
+			cube1[(9 * 5)  + i * 36]  = point5.x;  cube1[(9 * 5) + i * 36 + 1] = point5.y;  cube1[(9 * 5) +i * 36 + 2] = point5.z;
+			cube1[(9 * 6)  + i * 36]  = point6.x;  cube1[(9 * 6) + i * 36 + 1] = point6.y;  cube1[(9 * 6) +i * 36 + 2] = point6.z;
+			cube1[(9 * 7)  + i * 36]  = point7.x;  cube1[(9 * 7) + i * 36 + 1] = point7.y;  cube1[(9 * 7) +i * 36 + 2] = point7.z;
+			cube1[(9 * 8)  + i * 36]  = point8.x;  cube1[(9 * 8) + i * 36 + 1] = point8.y;  cube1[(9 * 8) +i * 36 + 2] = point8.z;
+			cube1[(9 * 9)  + i * 36]  = point9.x;  cube1[(9 * 9) + i * 36 + 1] = point9.y;  cube1[(9 * 9) +i * 36 + 2] = point9.z;
+			cube1[(9 * 10) + i  * 36] = point10.x; cube1[(9 * 10)+ i * 36 + 1] = point10.y; cube1[(9 * 10)+i * 36 + 2] = point10.z;
+			cube1[(9 * 11) + i  * 36] = point11.x; cube1[(9 * 11)+ i * 36 + 1] = point11.y; cube1[(9 * 11)+i * 36 + 2] = point11.z;
+
+		}
+	}
+	cout << "__________"<<cube_size<<"_______" << verts << "_____\n";
+	
+	for (int i = 0; i < cube_size / 9; i++)
+	{
+		for (int t = 0; t < 9; t++)
+		{
+			if (cube0[i * 9 + t] >= 0)cout << " ";
+			cout << cube0[i * 9 + t] << " ";
+		
+		}
+		cout << endl;
+	}
+	cout << endl; cout << endl;
+	for (int i = 0; i < cube_size / 9; i++)
+	{
+		for (int j = 0; j < 4; j++)
+		{
+			for (int t = 0; t < 9; t++)
+			{
+				if (cube1[i * 36 + j * 9 + t] >= 0)cout << " ";
+				cout << cube1[i * 36 + j * 9 + t] << " ";
+			}
+			cout << endl;
+		}
+		cout << endl;
+	}
+
+	glm::vec3 a = glm::vec3(1.0f, -1.5f, 2.5f);
+	glm::vec3 b = glm::vec3(3.5f, 4.5f, 0.5f);
+	glm::vec3 c = a + b;
+	c *= 0.5;
+	cout << "X= " << c.x << "Y= " << c.y << "Z= " << c.z << endl;
+//	system("pause");
+		cout << endl; cout << endl;
+	detail_level++;
+	cube_size *= 4;
+}
+
+void OnResize(GLFWwindow* win, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+void processInput(GLFWwindow* win, double dt)
+{
+
+	if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(win, true);
+	if (glfwGetKey(win, GLFW_KEY_1) == GLFW_PRESS)
+		detail_up();
+	if (glfwGetKey(win, GLFW_KEY_5) == GLFW_PRESS)
+		background = { 1.0f, 0.0f, 0.0f, 1.0f };
+	if (glfwGetKey(win, GLFW_KEY_6) == GLFW_PRESS)
+		background = { 0.0f, 1.0f, 0.0f, 1.0f };
+	
+
+	uint32_t dir = 0;
+
+	if (glfwGetKey(win, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+		dir |= CAM_UP;
+	if (glfwGetKey(win, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+		dir |= CAM_DOWN;
+	if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS)
+		dir |= CAM_FORWARD;
+	if (glfwGetKey(win, GLFW_KEY_S) == GLFW_PRESS)
+		dir |= CAM_BACKWARD;
+	if (glfwGetKey(win, GLFW_KEY_A) == GLFW_PRESS)
+		dir |= CAM_LEFT;
+	if (glfwGetKey(win, GLFW_KEY_D) == GLFW_PRESS)
+		dir |= CAM_RIGHT;
+
+	double newx = 0.f, newy = 0.f;
+	glfwGetCursorPos(win, &newx, &newy);
+	static double x = newx, y = newy;
+	double xoffset = newx - x;
+	double yoffset = newy - y;
+	x = newx;
+	y = newy;
+
+	camera.Move(dir, dt);
+	camera.Rotate(xoffset, -yoffset);
+}
+
+void OnScroll(GLFWwindow* win, double x, double y)
+{
+	//camera.ChangeFOV(y);	std::cout << "Scrolled x: " << x << ", y: " << y << ". FOV = " << camera.Fov << std::endl;
+	if (y<0)
+	{
+		cube_scale *= 0.95f;
+		cursor_scale *= 0.95f;
+	}
+	else
+	{
+		cube_scale *= 1.05f;
+		cursor_scale *= 1.05f;
+	}
+}
+
+void UpdatePolygoneMode()
+{
+	if (wireframeMode)
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	else
+		glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+}
+
+void OnKeyAction(GLFWwindow* win, int key, int scancode, int action, int mods)
+{
+	if (action == GLFW_PRESS)
+	{
+		switch (key)
+		{
+		case GLFW_KEY_SPACE:
+			wireframeMode = !wireframeMode;
+			UpdatePolygoneMode();
+			break;
+		case GLFW_KEY_R:
+			glFrontFace(GL_CCW);
+			break;
+		case GLFW_KEY_T:
+			glFrontFace(GL_CW);
+			break;
+		case GLFW_MOUSE_BUTTON_RIGHT:
+			glFrontFace(GL_CW);
+			break;
+		}
+	}
+}
+
+ModelTransform cursorTrans = { glm::vec3(0.f,   1.f,   0.f),	// position
+								glm::vec3(0.f,   0.f,   0.f),	// rotation
+								glm::vec3(0.02f, 0.02f, 0.02f) };	// scale
+
 ModelTransform polygonTrans1 = { glm::vec3(0.f, 0.f, 0.f),	// position
 								glm::vec3(0.f, 0.f, 0.f),	// rotation
 								glm::vec3(1.f, 1.f, 1.f) };	// scale
@@ -238,19 +394,19 @@ void is_Drag() {
 	if (is_drag)
 		return;
 	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
-	for (int i = 0; i < 36; i++)
+	for (int i = 0; i < verts; i++)
 	{
 		if ((cube0[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) && (cube0[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
 			(cube0[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.y) && (cube0[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.y) &&
 			(cube0[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.z) && (cube0[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.z))
 		{
-			cursorColor = glm::vec3(0.2f, 0.2f, 0.85f);
+			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f);
 		}
 	}
 }
 
 void drag() {
-	for (int i = 0; i < 36; i++)
+	for (int i = 0; i < verts; i++)
 	{
 		if ((cube0[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.x) && (cube0[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.x) &&
 			(cube0[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans.position.y) && (cube0[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans.position.y) &&
@@ -258,7 +414,7 @@ void drag() {
 		{
 			drag_list[i] = true;
 			is_drag = true;
-			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f);
+			cursorColor = glm::vec3(0.2f, 0.2f, 0.85f);
 		}
 		else
 		{
@@ -269,7 +425,7 @@ void drag() {
 
 void drop() {
 	is_drag = false;
-	for (int i = 0; i < 36; i++)
+	for (int i = 0; i < verts; i++)
 	{
 		cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 		drag_list[i] = false;
@@ -277,7 +433,7 @@ void drop() {
 }
 
 void drag_move(glm::vec3 move_to) {
-	for (int i = 0; i < 36; i++)
+	for (int i = 0; i < verts; i++)
 	{
 		if (drag_list[i] == true)
 		{
@@ -291,7 +447,7 @@ void drag_move(glm::vec3 move_to) {
 
 void drag_move_to(glm::vec3 move_to) {
 	cout << cube_scale << endl;
-	for (int i = 0; i < 36; i++)
+	for (int i = 0; i < verts; i++)
 	{
 		if (drag_list[i] == true)
 		{
@@ -415,7 +571,6 @@ int main()
 
 	glm::vec3 lightPos = glm::vec3(1.5f, 1.3f, -2.5f);
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-	
 	glm::vec3 ambientColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	glm::mat4 p ;
@@ -424,6 +579,8 @@ int main()
 	glm::mat4 model ;
 
 	glm::vec3 old_cursor=glm::vec3(0,0,0);
+
+//	cube_size = 324;
 	while (!glfwWindowShouldClose(win))
 	{
 		glClearColor(background.r, background.g, background.b, background.a);
@@ -459,7 +616,7 @@ int main()
 		cursor_shader->setMatrix4F("pv", pv);
 		cursor_shader->setMatrix4F("model", model);
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, verts);
 
 	
 		polygonTrans1.setScale(cube_scale);
@@ -476,7 +633,7 @@ int main()
 		light_shader->setMatrix4F("pv", pv);
 		light_shader->setMatrix4F("model", model);
 		light_shader->setVec3("lightColor", lightColor);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, verts);
 		
 		glBindVertexArray(VAO_polygon);
 
@@ -503,13 +660,13 @@ int main()
 		polygon_shader->setVec3("lightColor", lightColor);
 		polygon_shader->setVec3("ambientColor", ambientColor);
 
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDrawArrays(GL_TRIANGLES, 0, verts);
 		/// points
 		cursor_shader->use();
 		cursor_shader->setVec3("PointsColor", cursorColor);
 		cursor_shader->setMatrix4F("pv", pv);
 		cursor_shader->setMatrix4F("model", model);
-		glDrawArrays(GL_POINTS, 0, 36);
+		glDrawArrays(GL_POINTS, 0, verts);
 
 	
 	
