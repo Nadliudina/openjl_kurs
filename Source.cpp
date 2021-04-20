@@ -38,19 +38,12 @@ void OnResize(GLFWwindow* win, int width, int height)
 
 void processInput(GLFWwindow* win, double dt)
 {
-	if (glfwGetKey(win, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-		glfwSetWindowShouldClose(win, true);
-	if (glfwGetKey(win, GLFW_KEY_1) == GLFW_PRESS)
-	{
-		Sleep(500);
-		red.detail_up();
-	}
-	if (glfwGetKey(win, GLFW_KEY_5) == GLFW_PRESS)
-		background = { 1.0f, 0.0f, 0.0f, 1.0f };
-	if (glfwGetKey(win, GLFW_KEY_6) == GLFW_PRESS)
-		background = { 0.0f, 1.0f, 0.0f, 1.0f };
-	
 	uint32_t dir = 0;
+
+	if (glfwGetKey(win, GLFW_KEY_LEFT) == GLFW_PRESS)
+		red.polygonTrans1->rotation.y -= 0.7f;
+	if (glfwGetKey(win, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		red.polygonTrans1->rotation.y += 0.7f;
 
 	if (glfwGetKey(win, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
 		dir |= CAM_UP;
@@ -120,6 +113,18 @@ void OnKeyAction(GLFWwindow* win, int key, int scancode, int action, int mods)
 			break;
 		case GLFW_KEY_RIGHT_BRACKET:
 			red.cursor_scale *= 1.05f;
+			break;
+		case GLFW_KEY_ESCAPE:
+			glfwSetWindowShouldClose(win, true);
+			break;
+		case GLFW_KEY_1:
+			red.detail_up();//		Sleep(500);
+			break;
+		case GLFW_KEY_5:
+			background = { 0.6f, 0.6f, 0.6f, 1.0f };
+			break;
+		case GLFW_KEY_6:
+			background = { 0.0f, 0.0f, 0.0f, 1.0f };
 			break;
 		}
 	}
@@ -238,7 +243,7 @@ int main()
 	glm::mat4 p ;
 	glm::mat4 v ;
 	glm::mat4 pv;
-	glm::mat4 model ;
+	glm::mat4 model ,pmodel;
 
 	glm::vec3 old_cursor=glm::vec3(0,0,0);
 
@@ -292,12 +297,18 @@ int main()
 		light_shader->setVec3("lightColor", lightColor);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 
+		//points_cubs
+
 		for (int i = 0; i < red.verts; i++)
 		{
 			lightTrans.position = glm::vec3(red.cube2[i * 9], red.cube2[i * 9+1], red.cube2[i * 9+2]) * red.cube_scale;
 			model = glm::mat4(1.0f);
+			model = glm::rotate(model, glm::radians(red.polygonTrans1->rotation.x), glm::vec3(1.f, 0.f, 0.f));
+			model = glm::rotate(model, glm::radians(red.polygonTrans1->rotation.y), glm::vec3(0.f, 1.f, 0.f));
+			model = glm::rotate(model, glm::radians(red.polygonTrans1->rotation.z), glm::vec3(0.f, 0.f, 1.f));
 			model = glm::translate(model, lightTrans.position);
-			model = glm::scale(model,glm::vec3(0.01f, 0.01f, 0.01f));
+			model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
+		
 			light_shader->setMatrix4F("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
@@ -331,12 +342,12 @@ int main()
 		polygon_shader->setVec3("ambientColor", ambientColor);
 
 		glDrawArrays(GL_TRIANGLES, 0, red.verts);
-		/// points
+	/*	/// points
 		cursor_shader->use();
 		cursor_shader->setVec3("PointsColor", red.cursorColor);
 		cursor_shader->setMatrix4F("pv", pv);
 		cursor_shader->setMatrix4F("model", model);
-		glDrawArrays(GL_POINTS, 0, red.verts);
+		glDrawArrays(GL_POINTS, 0, red.verts);*/
 
 	
 

@@ -34,28 +34,18 @@ class Redactor
 {
 public :
 
-//	Camera *camera;
-
 	float cursor_scale;
-
 	float cube_scale ;
-
 	bool is_drag ;
-
 	int verts ;
-
 	int cube_size ;
-
 	float*cube0,* cube1, * cube2;
-
 	float* cursor_cube;
-
 	bool* drag_list;
-
+	
 	ModelTransform* cursorTrans;
-
 	ModelTransform *polygonTrans1; 
-
+	
 	glm::vec3 cursorColor ;
 
 	glm::vec3 point0;
@@ -76,12 +66,8 @@ public :
 	void x4_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 	void detail_up();
 	void is_Drag();
-
 	void drag();
-
 	void drop();
-
 	void drag_move(glm::vec3 move_to);
-
 	void drag_move_to(glm::vec3 move_to);
 };

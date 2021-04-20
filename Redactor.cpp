@@ -130,14 +130,22 @@ void Redactor::is_Drag()
 {
 	if (is_drag)
 		return;
+	//glm::mat4 model = glm::mat4(1.0f); 
+	//model = glm::rotate(model, glm::radians(polygonTrans1->rotation.x), glm::vec3(1.f, 0.f, 0.f));
+	//model = glm::rotate(model, glm::radians(polygonTrans1->rotation.y), glm::vec3(0.f, 1.f, 0.f));
+	//model = glm::rotate(model, glm::radians(polygonTrans1->rotation.z), glm::vec3(0.f, 0.f, 1.f));
+
 	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 	for (int i = 0; i < verts; i++)
 	{
-		if ((cube2[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.x) && (cube2[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.x) &&
-			(cube2[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.y) && (cube2[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.y) &&
-			(cube2[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.z) && (cube2[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.z))
+		if ((cube2[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.x) 
+			&& (cube2[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.x) &&
+			(cube2[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.y)
+			&& (cube2[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.y) &&
+			(cube2[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.z) 
+			&& (cube2[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.z))
 		{
-			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f);
+			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f); break;
 		}
 	}
 }
