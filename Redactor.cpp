@@ -130,20 +130,25 @@ void Redactor::is_Drag()
 {
 	if (is_drag)
 		return;
-	//glm::mat4 model = glm::mat4(1.0f); 
-	//model = glm::rotate(model, glm::radians(polygonTrans1->rotation.x), glm::vec3(1.f, 0.f, 0.f));
-	//model = glm::rotate(model, glm::radians(polygonTrans1->rotation.y), glm::vec3(0.f, 1.f, 0.f));
-	//model = glm::rotate(model, glm::radians(polygonTrans1->rotation.z), glm::vec3(0.f, 0.f, 1.f));
-
 	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+
+	glm::vec4 Position;
+	glm::vec4 inPos= glm::vec4(0.f,0.f,0.f,1.f);
+
 	for (int i = 0; i < verts; i++)
 	{
-		if ((cube2[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.x) 
-			&& (cube2[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.x) &&
-			(cube2[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.y)
-			&& (cube2[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.y) &&
-			(cube2[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.z) 
-			&& (cube2[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.z))
+		inPos.x = cube2[i * 9 + 0];
+		inPos.y = cube2[i * 9 + 1];
+		inPos.z = cube2[i * 9 + 2];
+		inPos.a = 1.f;
+		Position =  *model * inPos;
+
+		if ((Position.x * cube_scale <= +cursor_scale / 2 + cursorTrans->position.x)
+			&& (Position.x * cube_scale >= -cursor_scale / 2 + cursorTrans->position.x) &&
+			(Position.y * cube_scale <= +cursor_scale / 2 + cursorTrans->position.y)
+			&& (Position.y * cube_scale >= -cursor_scale / 2 + cursorTrans->position.y) &&
+			(Position.z * cube_scale <= +cursor_scale / 2 + cursorTrans->position.z)
+			&& (Position.z * cube_scale >= -cursor_scale / 2 + cursorTrans->position.z))
 		{
 			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f); break;
 		}
@@ -216,11 +221,23 @@ void Redactor::detail_up()
 
 void Redactor::drag()
 {
+	glm::vec4 Position;
+	glm::vec4 inPos = glm::vec4(0.f, 0.f, 0.f, 1.f);
+
 	for (int i = 0; i < verts; i++)
 	{
-		if ((cube2[i * 9 + 0] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.x) && (cube2[i * 9 + 0] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.x) &&
-			(cube2[i * 9 + 1] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.y) && (cube2[i * 9 + 1] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.y) &&
-			(cube2[i * 9 + 2] * cube_scale <= +cursor_scale / 2 + cursorTrans->position.z) && (cube2[i * 9 + 2] * cube_scale >= -cursor_scale / 2 + cursorTrans->position.z))
+		inPos.x = cube2[i * 9 + 0];
+		inPos.y = cube2[i * 9 + 1];
+		inPos.z = cube2[i * 9 + 2];
+		inPos.a = 1.f;
+		Position = *model * inPos;
+
+		if ((Position.x * cube_scale <= +cursor_scale / 2 + cursorTrans->position.x) && 
+			(Position.x * cube_scale >= -cursor_scale / 2 + cursorTrans->position.x) &&
+			(Position.y * cube_scale <= +cursor_scale / 2 + cursorTrans->position.y) && 
+			(Position.y * cube_scale >= -cursor_scale / 2 + cursorTrans->position.y) &&
+			(Position.z * cube_scale <= +cursor_scale / 2 + cursorTrans->position.z) && 
+			(Position.z * cube_scale >= -cursor_scale / 2 + cursorTrans->position.z))
 		{
 			drag_list[i] = true;
 			is_drag = true;
@@ -231,6 +248,11 @@ void Redactor::drag()
 			drag_list[i] = false;
 		}
 	}
+}
+
+void Redactor::set_model(glm::mat4 &m)
+{
+	model = &m;
 }
 
 void Redactor::drop()
@@ -260,13 +282,14 @@ void Redactor::drag_move_to(glm::vec3 move_to)
 
 void Redactor::drag_move(glm::vec3 move_to)
 {
+	glm::vec4 move_model = glm::vec4(move_to, 1.f) ** model;
 	for (int i = 0; i < verts; i++)
 	{
 		if (drag_list[i] == true)
 		{
-			cube2[i * 9 + 0] += move_to.x / cube_scale;
-			cube2[i * 9 + 1] += move_to.y / cube_scale;
-			cube2[i * 9 + 2] += move_to.z / cube_scale;
+			cube2[i * 9 + 0] += move_model.x / cube_scale;
+			cube2[i * 9 + 1] += move_model.y / cube_scale;
+			cube2[i * 9 + 2] += move_model.z / cube_scale;
 		}
 	}
 	cout << endl;

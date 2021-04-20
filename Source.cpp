@@ -243,11 +243,11 @@ int main()
 	glm::mat4 p ;
 	glm::mat4 v ;
 	glm::mat4 pv;
-	glm::mat4 model ,pmodel;
+	glm::mat4 model ,redmodel;
 
 	glm::vec3 old_cursor=glm::vec3(0,0,0);
 
-
+	red.set_model(redmodel);
 	while (!glfwWindowShouldClose(win))
 	{
 		glClearColor(background.r, background.g, background.b, background.a);
@@ -264,7 +264,8 @@ int main()
 		glBindVertexArray(CursorArrayO);
 		old_cursor = red.cursorTrans->position;
 		red.cursorTrans->position = camera.Position + camera.Front;
-		red.drag_move(red.cursorTrans->position - old_cursor);
+	red.drag_move(red.cursorTrans->position - old_cursor);
+	//	red.drag_move_to(red.cursorTrans->position );
 		red.is_Drag();
 
 		red.cursorTrans->setScale(red.cursor_scale);
@@ -324,17 +325,18 @@ int main()
 //1
 
 		red.polygonTrans1->setScale(red.cube_scale);
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, red.polygonTrans1->position);
-		model = glm::rotate(model, glm::radians(red.polygonTrans1->rotation.x), glm::vec3(1.f, 0.f, 0.f));
-		model = glm::rotate(model, glm::radians(red.polygonTrans1->rotation.y), glm::vec3(0.f, 1.f, 0.f));
-		model = glm::rotate(model, glm::radians(red.polygonTrans1->rotation.z), glm::vec3(0.f, 0.f, 1.f));
-		model = glm::scale(model, red.polygonTrans1->scale);
-
+		redmodel = glm::mat4(1.0f);
+		redmodel = glm::translate(redmodel, red.polygonTrans1->position);
+		redmodel = glm::rotate(redmodel, glm::radians(red.polygonTrans1->rotation.x), glm::vec3(1.f, 0.f, 0.f));
+		redmodel = glm::rotate(redmodel, glm::radians(red.polygonTrans1->rotation.y), glm::vec3(0.f, 1.f, 0.f));
+		redmodel = glm::rotate(redmodel, glm::radians(red.polygonTrans1->rotation.z), glm::vec3(0.f, 0.f, 1.f));
+		redmodel = glm::scale (redmodel, red.polygonTrans1->scale);
+	
+		
 
 		polygon_shader->use();
 		polygon_shader->setMatrix4F("pv", pv);
-		polygon_shader->setMatrix4F("model", model);
+		polygon_shader->setMatrix4F("model", redmodel);
 		polygon_shader->setBool("wireframeMode", wireframeMode);
 		polygon_shader->setVec3("viewPos", camera.Position);
 		polygon_shader->setVec3("lightPos", lightPos);

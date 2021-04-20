@@ -42,6 +42,7 @@ public :
 	float*cube0,* cube1, * cube2;
 	float* cursor_cube;
 	bool* drag_list;
+	glm::mat4* model;
 	
 	ModelTransform* cursorTrans;
 	ModelTransform *polygonTrans1; 
@@ -65,9 +66,10 @@ public :
 
 	void x4_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 	void detail_up();
-	void is_Drag();
-	void drag();
+	void is_Drag();//glm::mat4 &model
+	void drag( );//glm::mat4 &model
 	void drop();
 	void drag_move(glm::vec3 move_to);
 	void drag_move_to(glm::vec3 move_to);
+	void set_model(glm::mat4 &m);
 };
