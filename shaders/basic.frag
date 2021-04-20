@@ -17,7 +17,7 @@ uniform vec3 ambientColor;
 
 void main()
 {
-    vec3 ambient = ambientColor*0.5f;
+    vec3 ambient = ambientColor*0.3f;
 
     vec3 norm = normalize(vertNormal);
     vec3 lightDir = normalize(FragPos - lightPos);
@@ -29,7 +29,7 @@ void main()
     vec3 viewDir = normalize(FragPos-viewPos);
 
     float specularStrength = 2.0f;
-    float spec_koef = pow(max(dot(viewDir, reflectDir), 0.0f), 1000);
+    float spec_koef = pow(max(dot(viewDir, reflectDir), 0.0f), 200);
     vec3 specular = specularStrength * spec_koef * lightColor;
 
     if (wireframeMode)

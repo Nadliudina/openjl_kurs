@@ -183,9 +183,9 @@ void Redactor::detail_up()
 	cube2 = temp;
 	for (int i = 0; i < cube_size / 9; i++)
 	{
-		for (int j = 0; j < 4; j++)
+		for (int j = 0; j < 4; j++)//копирование 4 раза
 		{
-			for (int t = 3; t < 9; t++)
+			for (int t = 3; t < 9; t++)// нормаль и цвет
 				cube2[i * 36 + j * 9 + t] = cube1[i * 9 + t];
 		}
 		if ((i) % 3 == 0)
@@ -194,16 +194,16 @@ void Redactor::detail_up()
 				glm::vec3(cube1[i * 9], cube1[i * 9 + 1], cube1[i * 9 + 2]),
 				glm::vec3(cube1[i * 9 + 9], cube1[i * 9 + 9 + 1], cube1[i * 9 + 9 + 2]),
 				glm::vec3(cube1[i * 9 + 18], cube1[i * 9 + 18 + 1], cube1[i * 9 + 18 + 2]));
-			cube2[i * 36] = point0.x;  cube2[i * 36 + 1] = point0.y;  cube2[i * 36 + 2] = point0.z;
-			cube2[(9 * 1) + i * 36] = point1.x;  cube2[(9 * 1) + i * 36 + 1] = point1.y;  cube2[(9 * 1) + i * 36 + 2] = point1.z;
-			cube2[(9 * 2) + i * 36] = point2.x;  cube2[(9 * 2) + i * 36 + 1] = point2.y;  cube2[(9 * 2) + i * 36 + 2] = point2.z;
-			cube2[(9 * 3) + i * 36] = point3.x;  cube2[(9 * 3) + i * 36 + 1] = point3.y;  cube2[(9 * 3) + i * 36 + 2] = point3.z;
-			cube2[(9 * 4) + i * 36] = point4.x;  cube2[(9 * 4) + i * 36 + 1] = point4.y;  cube2[(9 * 4) + i * 36 + 2] = point4.z;
-			cube2[(9 * 5) + i * 36] = point5.x;  cube2[(9 * 5) + i * 36 + 1] = point5.y;  cube2[(9 * 5) + i * 36 + 2] = point5.z;
-			cube2[(9 * 6) + i * 36] = point6.x;  cube2[(9 * 6) + i * 36 + 1] = point6.y;  cube2[(9 * 6) + i * 36 + 2] = point6.z;
-			cube2[(9 * 7) + i * 36] = point7.x;  cube2[(9 * 7) + i * 36 + 1] = point7.y;  cube2[(9 * 7) + i * 36 + 2] = point7.z;
-			cube2[(9 * 8) + i * 36] = point8.x;  cube2[(9 * 8) + i * 36 + 1] = point8.y;  cube2[(9 * 8) + i * 36 + 2] = point8.z;
-			cube2[(9 * 9) + i * 36] = point9.x;  cube2[(9 * 9) + i * 36 + 1] = point9.y;  cube2[(9 * 9) + i * 36 + 2] = point9.z;
+			cube2[           i * 36] = point0.x;  cube2[           i * 36 + 1] = point0.y;  cube2[           i * 36 + 2] = point0.z;
+			cube2[(9 * 1)  + i * 36] = point1.x;  cube2[(9 * 1)  + i * 36 + 1] = point1.y;  cube2[(9 * 1)  + i * 36 + 2] = point1.z;
+			cube2[(9 * 2)  + i * 36] = point2.x;  cube2[(9 * 2)  + i * 36 + 1] = point2.y;  cube2[(9 * 2)  + i * 36 + 2] = point2.z;
+			cube2[(9 * 3)  + i * 36] = point3.x;  cube2[(9 * 3)  + i * 36 + 1] = point3.y;  cube2[(9 * 3)  + i * 36 + 2] = point3.z;
+			cube2[(9 * 4)  + i * 36] = point4.x;  cube2[(9 * 4)  + i * 36 + 1] = point4.y;  cube2[(9 * 4)  + i * 36 + 2] = point4.z;
+			cube2[(9 * 5)  + i * 36] = point5.x;  cube2[(9 * 5)  + i * 36 + 1] = point5.y;  cube2[(9 * 5)  + i * 36 + 2] = point5.z;
+			cube2[(9 * 6)  + i * 36] = point6.x;  cube2[(9 * 6)  + i * 36 + 1] = point6.y;  cube2[(9 * 6)  + i * 36 + 2] = point6.z;
+			cube2[(9 * 7)  + i * 36] = point7.x;  cube2[(9 * 7)  + i * 36 + 1] = point7.y;  cube2[(9 * 7)  + i * 36 + 2] = point7.z;
+			cube2[(9 * 8)  + i * 36] = point8.x;  cube2[(9 * 8)  + i * 36 + 1] = point8.y;  cube2[(9 * 8)  + i * 36 + 2] = point8.z;
+			cube2[(9 * 9)  + i * 36] = point9.x;  cube2[(9 * 9)  + i * 36 + 1] = point9.y;  cube2[(9 * 9)  + i * 36 + 2] = point9.z;
 			cube2[(9 * 10) + i * 36] = point10.x; cube2[(9 * 10) + i * 36 + 1] = point10.y; cube2[(9 * 10) + i * 36 + 2] = point10.z;
 			cube2[(9 * 11) + i * 36] = point11.x; cube2[(9 * 11) + i * 36 + 1] = point11.y; cube2[(9 * 11) + i * 36 + 2] = point11.z;
 
@@ -217,6 +217,19 @@ void Redactor::detail_up()
 	for (int i = 0; i < verts; i++)
 		drag_list[i] = false;
 	cube1 = cube2;
+}
+
+glm::vec3 Redactor::normal(glm::vec3 a, glm::vec3 b)
+{
+	glm::vec3 plane;
+	plane.x = a.y * b.z - a.z * b.y;
+	plane.y =-a.x * b.z + a.z * b.x;
+	plane.z = a.x * b.y - a.y * b.x;
+	float length_of_v = sqrt((plane.x * plane.x) + (plane.y * plane.y) + (plane.z * plane.z));
+	plane.x = plane.x / length_of_v;
+	plane.y = plane.y / length_of_v;
+	plane.z = plane.z / length_of_v;
+	return plane;
 }
 
 void Redactor::drag()
@@ -246,6 +259,22 @@ void Redactor::drag()
 		else
 		{
 			drag_list[i] = false;
+		}
+	}
+}
+
+void Redactor::set_normals()
+{
+	glm::vec3 v;
+	for (int i = 0; i < cube_size / 9; i+=3)
+	{
+		v=normal(glm::vec3((cube2[i * 9 + 9]  - cube2[i * 9]),     (cube2[i * 9 + 9 + 1]  - cube2[i * 9 + 1]),     (cube2[i * 9 + 9 + 2]  - cube2[i * 9 + 2])), 
+		         glm::vec3((cube2[i * 9 + 18] - cube2[i * 9 + 9]), (cube2[i * 9 + 18 + 1] - cube2[i * 9 + 9 + 1]), (cube2[i * 9 + 18 + 2] - cube2[i * 9 + 9 + 2])));
+		for (int j =i; j <i+ 3; j++)
+		{
+			cube2[j * 9 + 3] = v.x;
+			cube2[j * 9 + 4] = v.y;
+			cube2[j * 9 + 5] = v.z;
 		}
 	}
 }

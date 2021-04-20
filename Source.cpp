@@ -141,6 +141,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 			break;
 		case GLFW_MOUSE_BUTTON_RIGHT:
 			red.drop();
+			red.set_normals();
 			break;
 		default:
 			break;

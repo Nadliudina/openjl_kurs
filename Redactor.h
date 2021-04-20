@@ -49,7 +49,7 @@ public :
 	
 	glm::vec3 cursorColor ;
 
-	glm::vec3 point0;
+	glm::vec3 point0;// for x4
 	glm::vec3 point1;
 	glm::vec3 point2;
 	glm::vec3 point3;
@@ -65,6 +65,8 @@ public :
 	Redactor();
 
 	void x4_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
+	glm::vec3 normal(glm::vec3 a, glm::vec3 b);
+	void set_normals();
 	void detail_up();
 	void is_Drag();//glm::mat4 &model
 	void drag( );//glm::mat4 &model
