@@ -1,5 +1,8 @@
 #include "Redactor.h"
-
+float Redactor::cursor_scale;
+float* Redactor::cursor_cube = nullptr;
+bool Redactor::is_drag;
+ModelTransform* Redactor::cursorTrans = nullptr;
 Redactor::Redactor()
 {
 	cube0 = new float[324];
@@ -122,6 +125,11 @@ Redactor::Redactor()
 	cube_scale = 1.0f;
 	cursor_scale =  0.08f;
 	is_drag = false;
+	//cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+}
+
+void Redactor::red_cursor()
+{
 	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 }
 
