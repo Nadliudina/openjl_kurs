@@ -45,7 +45,7 @@ public :
 	glm::mat4* model;
 	
 	ModelTransform* cursorTrans;
-	ModelTransform *polygonTrans1; 
+	ModelTransform * _ModelTrans;
 	
 	glm::vec3 cursorColor ;
 

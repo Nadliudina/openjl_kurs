@@ -41,9 +41,9 @@ void processInput(GLFWwindow* win, double dt)
 	uint32_t dir = 0;
 
 	if (glfwGetKey(win, GLFW_KEY_LEFT) == GLFW_PRESS)
-		red.polygonTrans1->rotation.y -= 0.7f;
+		red._ModelTrans->rotation.y -= 0.7f;
 	if (glfwGetKey(win, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		red.polygonTrans1->rotation.y += 0.7f;
+		red._ModelTrans->rotation.y += 0.7f;
 
 	if (glfwGetKey(win, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
 		dir |= CAM_UP;
@@ -265,7 +265,7 @@ int main()
 		glBindVertexArray(CursorArrayO);
 		old_cursor = red.cursorTrans->position;
 		red.cursorTrans->position = camera.Position + camera.Front;
-	red.drag_move(red.cursorTrans->position - old_cursor);
+		red.drag_move(red.cursorTrans->position - old_cursor);
 	//	red.drag_move_to(red.cursorTrans->position );
 		red.is_Drag();
 
@@ -303,19 +303,18 @@ int main()
 
 		for (int i = 0; i < red.verts; i++)
 		{
-			lightTrans.position = glm::vec3(red.cube2[i * 9], red.cube2[i * 9+1], red.cube2[i * 9+2]) * red.cube_scale;
+			lightTrans.position = glm::vec3(red.cube2[i * 9],red.cube2[i * 9+1],red.cube2[i * 9+2] ) * red.cube_scale  ;
 			model = glm::mat4(1.0f);
-			model = glm::rotate(model, glm::radians(red.polygonTrans1->rotation.x), glm::vec3(1.f, 0.f, 0.f));
-			model = glm::rotate(model, glm::radians(red.polygonTrans1->rotation.y), glm::vec3(0.f, 1.f, 0.f));
-			model = glm::rotate(model, glm::radians(red.polygonTrans1->rotation.z), glm::vec3(0.f, 0.f, 1.f));
+			model = glm::translate(model, red._ModelTrans->position);
+			model = glm::rotate(model, glm::radians(red._ModelTrans->rotation.x), glm::vec3(1.f, 0.f, 0.f));
+			model = glm::rotate(model, glm::radians(red._ModelTrans->rotation.y), glm::vec3(0.f, 1.f, 0.f));
+			model = glm::rotate(model, glm::radians(red._ModelTrans->rotation.z), glm::vec3(0.f, 0.f, 1.f));
 			model = glm::translate(model, lightTrans.position);
 			model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
 		
 			light_shader->setMatrix4F("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 		}
-
-		
 		glBindVertexArray(VAO_polygon);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon);
@@ -324,20 +323,18 @@ int main()
 		glEnableVertexAttribArray(0);
 
 //1
-
-		red.polygonTrans1->setScale(red.cube_scale);
-		redmodel = glm::mat4(1.0f);
-		redmodel = glm::translate(redmodel, red.polygonTrans1->position);
-		redmodel = glm::rotate(redmodel, glm::radians(red.polygonTrans1->rotation.x), glm::vec3(1.f, 0.f, 0.f));
-		redmodel = glm::rotate(redmodel, glm::radians(red.polygonTrans1->rotation.y), glm::vec3(0.f, 1.f, 0.f));
-		redmodel = glm::rotate(redmodel, glm::radians(red.polygonTrans1->rotation.z), glm::vec3(0.f, 0.f, 1.f));
-		redmodel = glm::scale (redmodel, red.polygonTrans1->scale);
-	
-		
+		red._ModelTrans->setScale(red.cube_scale);
+		 model = glm::mat4(1.0f);
+		 model = glm::translate( model, red._ModelTrans->position);
+		 model = glm::rotate   ( model, glm::radians(red._ModelTrans->rotation.x), glm::vec3(1.f, 0.f, 0.f));
+		 model = glm::rotate   ( model, glm::radians(red._ModelTrans->rotation.y), glm::vec3(0.f, 1.f, 0.f));
+		 model = glm::rotate   ( model, glm::radians(red._ModelTrans->rotation.z), glm::vec3(0.f, 0.f, 1.f));
+		 model = glm::scale    ( model, red._ModelTrans->scale);
+		 redmodel = model;
 
 		polygon_shader->use();
 		polygon_shader->setMatrix4F("pv", pv);
-		polygon_shader->setMatrix4F("model", redmodel);
+		polygon_shader->setMatrix4F("model",  model);
 		polygon_shader->setBool("wireframeMode", wireframeMode);
 		polygon_shader->setVec3("viewPos", camera.Position);
 		polygon_shader->setVec3("lightPos", lightPos);

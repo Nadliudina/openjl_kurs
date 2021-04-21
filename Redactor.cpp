@@ -115,10 +115,9 @@ Redactor::Redactor()
 								glm::vec3(0.f,   0.f,   0.f),
 								glm::vec3(0.02f, 0.02f, 0.02f) };
 
-	polygonTrans1=new ModelTransform { glm::vec3(0.f, 0.f, 0.f),	// position
-									glm::vec3(0.f, 0.f, 0.f),	// rotation
-									glm::vec3(1.f, 1.f, 1.f) };	// scale
-
+	_ModelTrans=new ModelTransform { glm::vec3(0.3f, 0.5f, 0.f),	// position
+									 glm::vec3(0.f, 0.f, 0.f),	// rotation
+									 glm::vec3(1.f, 1.f, 1.f) };	// scale
 
 	cube_scale = 1.0f;
 	cursor_scale =  0.08f;
@@ -134,21 +133,22 @@ void Redactor::is_Drag()
 
 	glm::vec4 Position;
 	glm::vec4 inPos= glm::vec4(0.f,0.f,0.f,1.f);
-
+		
 	for (int i = 0; i < verts; i++)
 	{
 		inPos.x = cube2[i * 9 + 0];
 		inPos.y = cube2[i * 9 + 1];
 		inPos.z = cube2[i * 9 + 2];
 		inPos.a = 1.f;
-		Position =  *model * inPos;
 
-		if ((Position.x * cube_scale <= +cursor_scale / 2 + cursorTrans->position.x)
-			&& (Position.x * cube_scale >= -cursor_scale / 2 + cursorTrans->position.x) &&
-			(Position.y * cube_scale <= +cursor_scale / 2 + cursorTrans->position.y)
-			&& (Position.y * cube_scale >= -cursor_scale / 2 + cursorTrans->position.y) &&
-			(Position.z * cube_scale <= +cursor_scale / 2 + cursorTrans->position.z)
-			&& (Position.z * cube_scale >= -cursor_scale / 2 + cursorTrans->position.z))
+		Position = *model * inPos;
+		                                
+		if ((Position.x  <= +cursorTrans->scale.x / 2 + cursorTrans->position.x)
+		&&  (Position.x  >= -cursorTrans->scale.x / 2 + cursorTrans->position.x) &&
+			(Position.y  <= +cursorTrans->scale.y / 2 + cursorTrans->position.y)
+		&&  (Position.y  >= -cursorTrans->scale.y / 2 + cursorTrans->position.y) &&
+			(Position.z  <= +cursorTrans->scale.z / 2 + cursorTrans->position.z)
+		&&  (Position.z  >= -cursorTrans->scale.z / 2 + cursorTrans->position.z))
 		{
 			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f); break;
 		}
@@ -244,13 +244,14 @@ void Redactor::drag()
 		inPos.z = cube2[i * 9 + 2];
 		inPos.a = 1.f;
 		Position = *model * inPos;
+		///
 
-		if ((Position.x * cube_scale <= +cursor_scale / 2 + cursorTrans->position.x) && 
-			(Position.x * cube_scale >= -cursor_scale / 2 + cursorTrans->position.x) &&
-			(Position.y * cube_scale <= +cursor_scale / 2 + cursorTrans->position.y) && 
-			(Position.y * cube_scale >= -cursor_scale / 2 + cursorTrans->position.y) &&
-			(Position.z * cube_scale <= +cursor_scale / 2 + cursorTrans->position.z) && 
-			(Position.z * cube_scale >= -cursor_scale / 2 + cursorTrans->position.z))
+	   if ((Position.x <= +cursorTrans->scale.x / 2 + cursorTrans->position.x)
+		&& (Position.x >= -cursorTrans->scale.x / 2 + cursorTrans->position.x) &&
+		   (Position.y <= +cursorTrans->scale.y / 2 + cursorTrans->position.y)
+		&& (Position.y >= -cursorTrans->scale.y / 2 + cursorTrans->position.y) &&
+		   (Position.z <= +cursorTrans->scale.z / 2 + cursorTrans->position.z)
+	   	&& (Position.z >= -cursorTrans->scale.z / 2 + cursorTrans->position.z))
 		{
 			drag_list[i] = true;
 			is_drag = true;
@@ -296,7 +297,7 @@ void Redactor::drop()
 
 void Redactor::drag_move_to(glm::vec3 move_to)
 {
-	cout << cube_scale << endl;
+//	cout << cube_scale << endl;
 	for (int i = 0; i < verts; i++)
 	{
 		if (drag_list[i] == true)
@@ -316,9 +317,9 @@ void Redactor::drag_move(glm::vec3 move_to)
 	{
 		if (drag_list[i] == true)
 		{
-			cube2[i * 9 + 0] += move_model.x / cube_scale;
-			cube2[i * 9 + 1] += move_model.y / cube_scale;
-			cube2[i * 9 + 2] += move_model.z / cube_scale;
+			cube2[i * 9 + 0] += move_model.x / _ModelTrans->scale.x/ _ModelTrans->scale.x;
+			cube2[i * 9 + 1] += move_model.y / _ModelTrans->scale.y/ _ModelTrans->scale.y;
+			cube2[i * 9 + 2] += move_model.z / _ModelTrans->scale.z/ _ModelTrans->scale.z;
 		}
 	}
 	cout << endl;
