@@ -49,7 +49,7 @@ public :
 	static ModelTransform* cursorTrans;
 	ModelTransform* _ModelTrans;
 	
-	glm::vec3 cursorColor ;
+	static glm::vec3 cursorColor ;
 
 	glm::vec3 point0;// for x4
 	glm::vec3 point1;

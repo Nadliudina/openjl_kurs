@@ -66,9 +66,9 @@ void processInput(GLFWwindow* win, double dt)
 				break;
 			}
 
-	if (glfwGetKey(win, GLFW_KEY_PAGE_UP) == GLFW_PRESS)
+	if (glfwGetKey(win, GLFW_KEY_G) == GLFW_PRESS)
 		dir |= CAM_UP;
-	if (glfwGetKey(win, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS)
+	if (glfwGetKey(win, GLFW_KEY_B) == GLFW_PRESS)
 		dir |= CAM_DOWN;
 	if (glfwGetKey(win, GLFW_KEY_W) == GLFW_PRESS)
 		dir |= CAM_FORWARD;
@@ -106,7 +106,7 @@ void OnScroll(GLFWwindow* win, double x, double y)
 		default:
 			break;
 		}
-	  red[0].cursor_scale = 0;
+	//  red[0].cursor_scale  *= 0.95f;
 	}
 	else
 	{
@@ -121,7 +121,7 @@ void OnScroll(GLFWwindow* win, double x, double y)
 		default:
 			break;
 		}
-		red[0].cursor_scale *= 1.05f;
+//		red[0].cursor_scale *= 1.05f;
 	}
 }
 
@@ -258,12 +258,12 @@ int main()
 
 #pragma region BUFFERS INITIALIZATION
 
-	unsigned int VBO_polygon, VAO_polygon;
-	glGenBuffers(1, &VBO_polygon);
-	glGenVertexArrays(1, &VAO_polygon);
+	unsigned int VBO_polygon[2], VAO_polygon[2];
+	glGenBuffers(1, &VBO_polygon[0]);
+	glGenVertexArrays(1, &VAO_polygon[0]);
 
-	glBindVertexArray(VAO_polygon);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon);
+	glBindVertexArray(VAO_polygon[0]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon[0]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * red[0].cube_size, red[0].cube2, GL_DYNAMIC_DRAW);//!!!!!!!!!!!!!!!!
 
 	// position
@@ -278,12 +278,12 @@ int main()
 	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(6 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 	////////////////////////////////////////////////////
-	unsigned int VBO_polygon1, VAO_polygon1;
-	glGenBuffers(1, &VBO_polygon1);
-	glGenVertexArrays(1, &VAO_polygon1);
+	//unsigned int VBO_polygon[1], VAO_polygon[1];
+	glGenBuffers(1, &VBO_polygon[1]);
+	glGenVertexArrays(1, &VAO_polygon[1]);
 
-	glBindVertexArray(VAO_polygon1);
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon1);
+	glBindVertexArray(VAO_polygon[1]);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon[1]);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * red[1].cube_size, red[1].cube2, GL_DYNAMIC_DRAW);//!!!!!!!!!!!!!!!!
 
 	// position
@@ -359,7 +359,7 @@ int main()
 		old_cursor = red[0].cursorTrans->position;
 		red[0].cursorTrans->position = camera.Position + camera.Front;
 
-	//	red[0].red_cursor();
+		red[0].red_cursor();
 		for (int i = 0; i < 2; i++)
 		{
 			red[i].drag_move(red[i].cursorTrans->position - old_cursor);
@@ -369,7 +369,7 @@ int main()
 	
 		//cursor
 		model = glm::mat4(1.0f);
-		model = glm::translate	(model, red[1].cursorTrans->position);
+		model = glm::translate	(model, red[0].cursorTrans->position);
 		model = glm::rotate		(model, glm::radians(red[0].cursorTrans->rotation.x), glm::vec3(1.f, 0.f, 0.f));
 		model = glm::rotate		(model, glm::radians(red[0].cursorTrans->rotation.y), glm::vec3(0.f, 1.f, 0.f));
 		model = glm::rotate		(model, glm::radians(red[0].cursorTrans->rotation.z), glm::vec3(0.f, 0.f, 1.f));
@@ -411,56 +411,34 @@ int main()
 				glDrawArrays(GL_TRIANGLES, 0, 36);
 			}
 
+		for (int i = 0; i < 2; i++)
+		{
+			glBindVertexArray(VAO_polygon[i]);
+			glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon[i]);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(float) * red[i].cube_size, red[i].cube2, GL_DYNAMIC_DRAW);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(0);
+			red[i]._ModelTrans->setScale(red[i].cube_scale);
+			redmodel = glm::mat4(1.0f);
+			redmodel = glm::translate(redmodel, red[i]._ModelTrans->position);
+			redmodel = glm::rotate(redmodel, glm::radians(red[i]._ModelTrans->rotation.x), glm::vec3(1.f, 0.f, 0.f));
+			redmodel = glm::rotate(redmodel, glm::radians(red[i]._ModelTrans->rotation.y), glm::vec3(0.f, 1.f, 0.f));
+			redmodel = glm::rotate(redmodel, glm::radians(red[i]._ModelTrans->rotation.z), glm::vec3(0.f, 0.f, 1.f));
+			redmodel = glm::scale(redmodel, red[i]._ModelTrans->scale);
+
+			polygon_shader->use();
+			polygon_shader->setMatrix4F("pv", pv);
+			polygon_shader->setMatrix4F("model", redmodel);
+			polygon_shader->setBool("wireframeMode", wireframeMode);
+			polygon_shader->setVec3("viewPos", camera.Position);
+			polygon_shader->setVec3("lightPos", lightPos);
+			polygon_shader->setVec3("lightColor", lightColor);
+			polygon_shader->setVec3("ambientColor", ambientColor);
+
+			glDrawArrays(GL_TRIANGLES, 0, red[i].verts);
+		}
 
 
-		glBindVertexArray(VAO_polygon);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * red[0].cube_size, red[0].cube2, GL_DYNAMIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-		red[0]._ModelTrans->setScale(red[0].cube_scale);
-		redmodel = glm::mat4(1.0f);
-		redmodel = glm::translate(redmodel, red[0]._ModelTrans->position);
-		redmodel = glm::rotate(redmodel, glm::radians(red[0]._ModelTrans->rotation.x), glm::vec3(1.f, 0.f, 0.f));
-		redmodel = glm::rotate(redmodel, glm::radians(red[0]._ModelTrans->rotation.y), glm::vec3(0.f, 1.f, 0.f));
-		redmodel = glm::rotate(redmodel, glm::radians(red[0]._ModelTrans->rotation.z), glm::vec3(0.f, 0.f, 1.f));
-		redmodel = glm::scale(redmodel, red[0]._ModelTrans->scale);
-
-		polygon_shader->use();
-		polygon_shader->setMatrix4F("pv", pv);
-		polygon_shader->setMatrix4F("model", redmodel);
-		polygon_shader->setBool("wireframeMode", wireframeMode);
-		polygon_shader->setVec3("viewPos", camera.Position);
-		polygon_shader->setVec3("lightPos", lightPos);
-		polygon_shader->setVec3("lightColor", lightColor);
-		polygon_shader->setVec3("ambientColor", ambientColor);
-
-		glDrawArrays(GL_TRIANGLES, 0, red[0].verts);
-
-		////////////////
-		glBindVertexArray(VAO_polygon1);
-		glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon1);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(float) * red[1].cube_size, red[1].cube2, GL_DYNAMIC_DRAW);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
-		glEnableVertexAttribArray(0);
-		red[1]._ModelTrans->setScale(red[1].cube_scale);
-		redmodel1 = glm::mat4(1.0f);
-		redmodel1 = glm::translate(redmodel1, red[1]._ModelTrans->position);
-		redmodel1 = glm::rotate(redmodel1, glm::radians(red[1]._ModelTrans->rotation.x), glm::vec3(1.f, 0.f, 0.f));
-		redmodel1 = glm::rotate(redmodel1, glm::radians(red[1]._ModelTrans->rotation.y), glm::vec3(0.f, 1.f, 0.f));
-		redmodel1 = glm::rotate(redmodel1, glm::radians(red[1]._ModelTrans->rotation.z), glm::vec3(0.f, 0.f, 1.f));
-		redmodel1 = glm::scale (redmodel1, red[1]._ModelTrans->scale);
-
-		polygon_shader->use();
-		polygon_shader->setMatrix4F("pv", pv);
-		polygon_shader->setMatrix4F("model", redmodel1);
-		polygon_shader->setBool("wireframeMode", wireframeMode);
-		polygon_shader->setVec3("viewPos", camera.Position);
-		polygon_shader->setVec3("lightPos", lightPos);
-		polygon_shader->setVec3("lightColor", lightColor);
-		polygon_shader->setVec3("ambientColor", ambientColor);
-
-		glDrawArrays(GL_TRIANGLES, 0, red[1].verts);
 	/*	/// points
 		cursor_shader->use();
 		cursor_shader->setVec3("PointsColor", red.cursorColor);

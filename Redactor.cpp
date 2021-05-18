@@ -3,6 +3,9 @@ float Redactor::cursor_scale;
 float* Redactor::cursor_cube = nullptr;
 bool Redactor::is_drag;
 ModelTransform* Redactor::cursorTrans = nullptr;
+//static glm::vec3 cursorColor ;
+ glm::vec3 Redactor::cursorColor;
+
 Redactor::Redactor()
 {
 	cube0 = new float[324];
@@ -130,6 +133,7 @@ Redactor::Redactor()
 
 void Redactor::red_cursor()
 {
+	if(!is_drag)
 	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 }
 
@@ -137,7 +141,7 @@ void Redactor::is_Drag()
 {
 	if (is_drag)
 		return;
-	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+	//cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 
 	glm::vec4 Position;
 	glm::vec4 inPos= glm::vec4(0.f,0.f,0.f,1.f);
@@ -229,15 +233,7 @@ void Redactor::detail_up()
 
 glm::vec3 Redactor::normal(glm::vec3 a, glm::vec3 b)
 {
-	glm::vec3 plane;
-	plane.x = a.y * b.z - a.z * b.y;
-	plane.y =-a.x * b.z + a.z * b.x;
-	plane.z = a.x * b.y - a.y * b.x;
-	float length_of_v = sqrt((plane.x * plane.x) + (plane.y * plane.y) + (plane.z * plane.z));
-	plane.x = plane.x / length_of_v;
-	plane.y = plane.y / length_of_v;
-	plane.z = plane.z / length_of_v;
-	return plane;
+	return glm::normalize(glm::cross(a, b));
 }
 
 void Redactor::drag()
