@@ -19,6 +19,14 @@
 
 using namespace std;
 
+#pragma region defines
+
+#define screenWidth  1280
+#define screenHeight 720
+#define countOfButton 3
+
+#pragma endregion
+
 #pragma region lands
 GLFWwindow* win;
 Redactor red[2];
@@ -33,6 +41,9 @@ Shader* light_shader;
 Shader * cursor_shader;
 Shader* menu_shader;
 GLuint MenuArrayO, MenuBO;
+int countOfcubes;
+int sw, sh;
+int axis;
 
 typedef struct
 {
@@ -41,18 +52,18 @@ typedef struct
 	BOOL hover;
 	Color color ;
 }TButton;
-TButton btn[] = {
+TButton btn[countOfButton] = {
 { "start",{ glm::vec3(0.f, 0.5f, 0.f),
-			glm::vec3(0.f, 0.5f, 0.f),
-			glm::vec3(1.f, 1.f, 1.f) }   ,FALSE ,{ 0.0f, 0.6f, 0.6f, 1.0f }},
+			glm::vec3(0.f, 0.0f, 0.f),
+			glm::vec3(0.5f, 0.25f, 1.f) }   ,FALSE ,{ 0.0f, 0.6f, 0.6f, 1.0f }},
 
 { "stop", { glm::vec3(0.0f, 0.f, 0.f),
 			glm::vec3(0.f, 0.f, 0.f),
-			glm::vec3(1.f, 1.f, 1.f)} ,FALSE ,{ 0.0f, 1.f, 0.2f, 1.0f }},
+			glm::vec3(0.5f, 0.25f, 1.f)} ,FALSE ,{ 0.0f, 1.f, 0.2f, 1.0f }},
 
 { "quit", { glm::vec3(0.f,- 0.5f, 0.f),
 			glm::vec3(0.f, 0.f, 0.f),
-			glm::vec3(1.f, 1.f, 1.f) },FALSE ,{ 1.0f, 0.0f, 0.0f, 1.0f }}
+			glm::vec3(0.5f, 0.25f, 1.f) },FALSE ,{ 1.0f, 0.0f, 0.0f, 1.0f }}
 };
 glm::mat4 p;
 glm::mat4 v;
@@ -62,6 +73,7 @@ glm::mat4 model, redmodel[2];
 
 void OnResize(GLFWwindow* win, int width, int height)
 {
+	sw = width; sh = height;
 	glViewport(0, 0, width, height);
 }
 
@@ -70,25 +82,31 @@ void processInput(GLFWwindow* win, double dt)
 	uint32_t dir = 0;
 
 	if (glfwGetKey(win, GLFW_KEY_LEFT) == GLFW_PRESS)
-		switch (choise)
+		switch (axis)
 		{
 		case 0:
-			red[0]._ModelTrans->rotation.y -= 0.7f;
+			red[choise]._ModelTrans->rotation.x -= 0.7f;
 			break;
 		case 1:
-			red[1]._ModelTrans->rotation.y -= 0.7f;
+			red[choise]._ModelTrans->rotation.y -= 0.7f;
+			break;
+		case 2:
+			red[choise]._ModelTrans->rotation.z -= 0.7f;
 			break;
 		default:
 			break;
 		}
 	if (glfwGetKey(win, GLFW_KEY_RIGHT) == GLFW_PRESS)
-		switch (choise)
+		switch (axis)
 		{
 		case 0:
-			red[0]._ModelTrans->rotation.y += 0.7f;
+			red[choise]._ModelTrans->rotation.x += 0.7f;
 			break;
 		case 1:
-			red[1]._ModelTrans->rotation.y += 0.7f;
+			red[choise]._ModelTrans->rotation.y += 0.7f;
+			break;
+		case 2:
+			red[choise]._ModelTrans->rotation.z += 0.7f;
 			break;
 		default:
 			break;
@@ -174,7 +192,7 @@ void TButton_Show(TButton btn)
 
 void ShowMenu()
 {
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < countOfButton; i++)
 		TButton_Show(btn[i]);
 }
 
@@ -188,6 +206,37 @@ void CloseMenu()
 {
 	background = { 0.f, 0.f, 0.f, 1.0f };
 	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+}
+
+void CheckMenuPress(double x,double y) {
+	int x1, y1, x2, y2,swtc=-1;
+
+	for (int i = 0; i < countOfButton; i++)
+	{
+		x1 = sw  / 2 + sw  / 2 *   btn[i].butTrans.position[0];
+		y1 = sh / 2 + sh / 2 *   btn[i].butTrans.position[1];
+		x2 = x1 + sw / 2 *  btn[i].butTrans.scale[0];
+		y2 = y1 - sh / 2 * btn[i].butTrans.scale[1];
+		if (x > x1 && x < x2 && y<y1 && y > y2)
+		{
+			cout << "Button "<<i<<endl;
+			swtc = i;
+		}
+		switch (swtc)
+		{
+		case 0:
+			glfwSetWindowShouldClose(win, true);
+			break;
+		case 1:
+
+			break;
+		case 2:
+
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 void UpdatePolygoneMode()
@@ -220,11 +269,13 @@ void OnKeyAction(GLFWwindow* win, int key, int scancode, int action, int mods)
 		case GLFW_KEY_RIGHT_BRACKET:
 			red[0].cursor_scale *= 1.05f;
 			break;
-		case GLFW_KEY_ESCAPE:
+		case GLFW_KEY_F:
 			glfwSetWindowShouldClose(win, true);
 			break;
-		case GLFW_KEY_0:
-			choise = 0;
+		case GLFW_KEY_M:
+			choise ++;
+			if (choise >= countOfcubes)
+				choise=0;
 			break;
 		case GLFW_KEY_1:
 			choise = 1;
@@ -249,7 +300,17 @@ void OnKeyAction(GLFWwindow* win, int key, int scancode, int action, int mods)
 		case GLFW_KEY_6:
 			background = { 0.0f, 0.0f, 0.0f, 1.0f };
 			break;
-		case GLFW_KEY_F:
+		case GLFW_KEY_UP:
+			axis++;
+			if (axis >= 3)
+				axis = 2;
+			break;
+		case GLFW_KEY_DOWN:
+			axis--;
+			if (axis <=-1)
+				axis = 0;
+			break;
+		case GLFW_KEY_ESCAPE:
 			menuIsOpen = !menuIsOpen;
 		
 			if (menuIsOpen)
@@ -284,7 +345,23 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 	}
 	else
 	{
-		red[1].set_normals();
+	
+		if (action == GLFW_PRESS)
+		{
+			switch (button)
+			{
+			case GLFW_MOUSE_BUTTON_LEFT:
+				double xpos, ypos;
+				glfwGetCursorPos(window, &xpos, &ypos);
+				cout << "Cursor Position at (" << xpos << " : " << ypos << endl;
+				CheckMenuPress(xpos,ypos);
+				break;
+
+			default:
+				break;
+			}
+		}
+
 	}
 }
 
@@ -297,7 +374,7 @@ int main()
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-	win = glfwCreateWindow(1280, 720, "OpenGL Window", NULL, NULL);
+	win = glfwCreateWindow(screenWidth, screenHeight, "OpenGL Window", NULL, NULL);
 	if (win == NULL)
 	{
 		std::cout << "Error. Couldn't create window!" << std::endl;
@@ -313,22 +390,26 @@ int main()
 	glfwSetScrollCallback(win, OnScroll);
 	glfwSetKeyCallback(win, OnKeyAction);
 	glfwSetMouseButtonCallback(win, mouse_button_callback);
-	glViewport(0, 0, 1280, 720);
+	glViewport(0, 0, screenWidth, screenHeight);
 	glEnable(GL_DEPTH_TEST);
 	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	UpdatePolygoneMode();
 	glEnable(GL_CULL_FACE);
 	glFrontFace(GL_CCW);
-
+	
+	sw = screenWidth;
+	sh = screenHeight;
+	countOfcubes = 0;
+	axis = 0;
 #pragma endregion
-	ModelTransform lightTrans = { glm::vec3(0.f, 0.f, 0.f),	// position
+	ModelTransform lightTrans =	  { glm::vec3(0.f, 0.f, 0.f),	// position
 									glm::vec3(0.f, 0.f, 0.f),	// rotation
 									glm::vec3(0.1f, 0.1f, 0.1f) };	// scale
 
 #pragma region BUFFERS INITIALIZATION
-	
+	countOfcubes = 2;
 	unsigned int VBO_polygon[2], VAO_polygon[2];
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < countOfcubes; i++)
 	{
 		glGenBuffers(1, &VBO_polygon[i]);
 		glGenVertexArrays(1, &VAO_polygon[i]);
@@ -353,19 +434,19 @@ int main()
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);	glEnableVertexAttribArray(0);
 
-	float menu_polygon[(4 * 6)] = {
-			0.f,	0.0f,	0.0f,		0.0f, 1.0f, 0.0f,
-			0.5f,	0.0f,	0.0f,		0.5f, 0.5f, 0.5f,
-			0.5f,	0.25f,	0.0f,		1.0f, 1.0f, 1.0f,
-			0.0f,	0.25f,	0.0f,		1.0f, 0.0f, 1.0f,
+	float menu_polygon[(12)] = {
+			0.f,	0.0f,	0.0f,		
+			1.f,	0.0f,	0.0f,		
+			1.f,	1.f,	0.0f,		
+			0.0f,	1.f,	0.0f		
 	};
 	glGenBuffers(1, &MenuBO);
 	glGenVertexArrays(1, &MenuArrayO);
 
 	glBindVertexArray(MenuArrayO);
 	glBindBuffer(GL_ARRAY_BUFFER, MenuBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, menu_polygon, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 12, menu_polygon, GL_STATIC_DRAW);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 
 #pragma endregion
@@ -379,6 +460,7 @@ int main()
 
 	glm::vec3 lightPos = glm::vec3(1.5f, 1.3f, -2.5f);
 	glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
+	glm::vec3 currentColor = glm::vec3(1.0f, 0.8f, 0.2f);
 	glm::vec3 ambientColor = glm::vec3(1.0f, 1.0f, 1.0f);
 
 	glm::vec3 old_cursor = glm::vec3(0, 0, 0);
@@ -393,7 +475,6 @@ int main()
 	{
 		glClearColor(background.r, background.g, background.b, background.a);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 
 		if (menuIsOpen)
 		{
@@ -445,7 +526,12 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 			//points_cubs
-			for (int j = 0; j < 2; j++)
+			for (int j = 0; j < countOfcubes; j++)
+			{
+				if (choise != j)
+					light_shader->setVec3("lightColor", lightColor);
+				else
+					light_shader->setVec3("lightColor", currentColor);
 				for (int i = 0; i < red[j].verts; i++)
 				{
 					lightTrans.position = glm::vec3(red[j].cube2[i * 9], red[j].cube2[i * 9 + 1], red[j].cube2[i * 9 + 2]) * red[j].cube_scale;
@@ -457,10 +543,13 @@ int main()
 					model = glm::translate(model, lightTrans.position);
 					model = glm::scale(model, glm::vec3(0.01f, 0.01f, 0.01f));
 					light_shader->setMatrix4F("model", model);
+
 					glDrawArrays(GL_TRIANGLES, 0, 36);
 				}
+			}
+			
 
-			for (int i = 0; i < 2; i++)
+			for (int i = 0; i < countOfcubes; i++)
 			{
 				glBindVertexArray(VAO_polygon[i]);
 				glBindBuffer(GL_ARRAY_BUFFER, VBO_polygon[i]);
