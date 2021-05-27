@@ -12,7 +12,6 @@
 #include "Camera.h"
 using namespace std;
 
-
 struct ModelTransform
 {
 	glm::vec3 position;
@@ -31,20 +30,19 @@ struct Color {
 	float r, g, b, a;
 };
 
-class Redactor
-{
+class Redactor{
 public :
-
+	unsigned int	VBO_polygon, VAO_polygon;
+	static int		countOfcubes;
 	static float	cursor_scale;
-	static float   *cursor_cube;
-
+	static float	* cursor_cube;
 	float			cube_scale ;
 	static bool		is_drag ;
-	int				verts ;
-	int				cube_size ;
+	int				verts ;		//количество вершин
+	int				cube_size ; //размер массива
 	float			* cube0,* cube1, * cube2;
 	bool			* drag_list;
-	glm::mat4* model;
+	glm::mat4		* model;
 	
 	static ModelTransform* cursorTrans;
 	ModelTransform* _ModelTrans;
@@ -75,7 +73,6 @@ public :
 	void drop();
 	void drag_move(glm::vec3 move_to);
 	void drag_move_to(glm::vec3 move_to);
-	void set_model(glm::mat4 &m);
 	void red_cursor();
 };
 

@@ -2,6 +2,7 @@
 float Redactor::cursor_scale;
 float* Redactor::cursor_cube = nullptr;
 bool Redactor::is_drag;
+int Redactor::countOfcubes;
 ModelTransform* Redactor::cursorTrans = nullptr;
 //static glm::vec3 cursorColor ;
  glm::vec3 Redactor::cursorColor;
@@ -190,12 +191,11 @@ void Redactor::x4_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c)
 
 void Redactor::detail_up()
 {
-	//cube2 = new float[cube_size * 4];
 	float* temp = new float[cube_size * 4];
 	cube2 = temp;
 	for (int i = 0; i < cube_size / 9; i++)
 	{
-		for (int j = 0; j < 4; j++)//копирование 4 раза
+		for (int j = 0; j < 4; j++)
 		{
 			for (int t = 3; t < 9; t++)// нормаль и цвет
 				cube2[i * 36 + j * 9 + t] = cube1[i * 9 + t];
@@ -282,11 +282,6 @@ void Redactor::set_normals()
 			cube2[j * 9 + 5] = v.z;
 		}
 	}
-}
-
-void Redactor::set_model(glm::mat4 &m)
-{
-	model = &m;
 }
 
 void Redactor::drop()
