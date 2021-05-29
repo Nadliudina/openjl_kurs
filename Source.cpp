@@ -23,7 +23,7 @@ using namespace std;
 
 #define screenWidth  1280
 #define screenHeight 720
-#define countOfButton 3
+#define countOfButton 4
 
 #pragma endregion
 
@@ -47,23 +47,27 @@ int axis;
 
 typedef struct
 {
-	char name[20];
+	string name;
 	ModelTransform butTrans ;	
 	BOOL hover;
 	Color color ;
 }TButton;
 TButton btn[countOfButton] = {
-{ "start",{ glm::vec3(0.f, 0.5f, 0.f),
+{ "save",{ glm::vec3(0.f, 0.5f, 0.f),
 			glm::vec3(0.f, 0.0f, 0.f),
 			glm::vec3(0.5f, 0.25f, 1.f) }   ,FALSE ,{ 0.0f, 0.6f, 0.6f, 1.0f }},
 
-{ "stop", { glm::vec3(0.0f, 0.f, 0.f),
+{ "add", { glm::vec3(0.0f, 0.f, 0.f),
 			glm::vec3(0.f, 0.f, 0.f),
 			glm::vec3(0.5f, 0.25f, 1.f)} ,FALSE ,{ 0.0f, 1.f, 0.2f, 1.0f }},
 
-{ "quit", { glm::vec3(0.f,- 0.5f, 0.f),
+{ "quit", { glm::vec3(0.f,-0.5f, 0.f),
 			glm::vec3(0.f, 0.f, 0.f),
-			glm::vec3(0.5f, 0.25f, 1.f) },FALSE ,{ 1.0f, 0.0f, 0.0f, 1.0f }}
+			glm::vec3(0.5f, 0.25f, 1.f) },FALSE ,{ 1.0f, 0.0f, 0.0f, 1.0f }},
+
+{ "load", { glm::vec3(0.f,-1.f, 0.f),
+			glm::vec3(0.f, 0.f, 0.f),
+			glm::vec3(0.5f, 0.25f, 1.f) },FALSE ,{ 0.0f, 0.0f, 0.0f, 1.0f }}
 };
 glm::mat4 p;
 glm::mat4 v;
@@ -180,7 +184,7 @@ void CloseMenu()
 }
 void AddNewRed()
 {
-	static float temp = 2.0f;
+	static float temp = 2.1f;
 
 	Red[(*Red[0]).countOfcubes] = new Redactor();
 	(*Red[(*Red[0]).countOfcubes]).model = new glm::mat4();
@@ -203,8 +207,15 @@ void AddNewRed()
 	/////////////////////////////////////////////////////////////////////////////
 
 	(*Red[0]).countOfcubes++ ;
-	temp += 2.f;
+	temp += 2.1f;
 
+}
+void SaveScene() {
+	int value = 12345;
+	char bufjson[100];
+	char* ptr = wjson::value<int>::serializer()(value, bufjson);
+	*ptr = '\0';
+	std::cout << bufjson << std::endl;
 }
 void CheckMenuPress(double x,double y) {
 	int x1, y1, x2, y2,swtc=-1;
@@ -212,16 +223,37 @@ void CheckMenuPress(double x,double y) {
 	for (int i = 0; i < countOfButton; i++)
 	{
 		x1 = sw / 2 + sw / 2 * btn[i].butTrans.position[0];
-		y1 = sh / 2 + sh / 2 * btn[i].butTrans.position[1];
 		x2 = x1 + sw / 2 * btn[i].butTrans.scale[0];
-		y2 = y1 - sh / 2 * btn[i].butTrans.scale[1];
+		y1 = sh / 2 - sh / 2 * btn[i].butTrans.position[1];
+		y2 = y1 -sh / 2 * btn[i].butTrans.scale[1];
+		cout << "Y1= " << y1 << endl;
+		cout << "Y2= " << y2 << endl<<endl;
 		if (x > x1 && x < x2 && y<y1 && y > y2)
 		{
-			cout << "Button " << i << endl;
+			cout << "Button " <<btn[i].name << endl;
 			swtc = i;
 		}
 	}
-		switch (swtc)
+	if (btn[swtc].name == "add")
+	{
+		AddNewRed();
+	}
+	else
+	if (btn[swtc].name == "load")
+	{
+	
+	}
+	else
+	if (btn[swtc].name == "quit")
+	{
+		glfwSetWindowShouldClose(win, true);
+	}
+	else
+	if (btn[swtc].name == "save")
+	{
+		SaveScene();
+	}
+	/*	switch (swtc)
 		{
 		case 0:
 			glfwSetWindowShouldClose(win, true);
@@ -235,7 +267,7 @@ void CheckMenuPress(double x,double y) {
 			break;
 		default:
 			break;
-		}
+	*/	//}
 	
 }
 
@@ -409,14 +441,13 @@ int main()
 									glm::vec3(0.1f, 0.1f, 0.1f) };	// scale
 
 #pragma region BUFFERS INITIALIZATION
-	(*Red[0]).countOfcubes = 2;
+	(*Red[0]).countOfcubes = 1;
 
-	for (int i = 0; i < (*Red[0]).countOfcubes; i++) {
-		Red[i] = new Redactor();
-		(*Red[i]).model = new glm::mat4();
-	}
-	(*Red[1])._ModelTrans->position.y = 2.f;///////
-	(*Red[0])._ModelTrans->position.y = -2.f;
+
+		Red[0] = new Redactor();
+		(*Red[0]).model = new glm::mat4();
+	
+	(*Red[0])._ModelTrans->position.y = -0.f;
 //	unsigned int *VBO_polygon, VAO_polygon[2];
 	//VBO_polygon = (unsigned int*)realloc(NULL, 2 * sizeof(unsigned int)); // при добавлении 
 ////////////////////////////
