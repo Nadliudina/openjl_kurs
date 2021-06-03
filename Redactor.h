@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <nlohmann/json.hpp>
 #define STB_IMAGE_IMPLEMENTATION
 //#include "stb_image.h"
 
@@ -63,6 +64,8 @@ public :
 	glm::vec3 point11;
 
 	Redactor();
+	~Redactor();
+	
 
 	void x4_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 	glm::vec3 normal(glm::vec3 a, glm::vec3 b);
@@ -74,5 +77,10 @@ public :
 	void drag_move(glm::vec3 move_to);
 	void drag_move_to(glm::vec3 move_to);
 	void red_cursor();
+	
+	void saveAll	( Redactor* ptr);
+	string serialize();
+	Redactor deserialize(const std::string& data);
+
 };
 

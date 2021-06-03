@@ -4,10 +4,9 @@ float* Redactor::cursor_cube = nullptr;
 bool Redactor::is_drag;
 int Redactor::countOfcubes;
 ModelTransform* Redactor::cursorTrans = nullptr;
-//static glm::vec3 cursorColor ;
- glm::vec3 Redactor::cursorColor;
+glm::vec3 Redactor::cursorColor;
 
-Redactor::Redactor()
+ Redactor::Redactor()
 {
 	cube0 = new float[324];
 	float temp0[]= {
@@ -138,6 +137,56 @@ void Redactor::red_cursor()
 	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 }
 
+void Redactor::saveAll( Redactor* ptr)
+{
+	string str;
+	for (int i = 0; i < countOfcubes; i++)
+	{
+		cout <<"\n___"<< countOfcubes<<" __________________________________________________\n";
+		str += 	ptr[i].serialize();
+	}
+	cout << endl << str << endl;
+}
+
+string Redactor::serialize()
+{
+	nlohmann::json jn{};
+	jn["cube_scale"]	= cube_scale;
+	jn["verts"]			= verts;
+	jn["cube_size"]		= cube_size;
+	//_ModelTrans
+	nlohmann::json pos_list = nlohmann::json::array();
+	pos_list.push_back(_ModelTrans->position.x);
+	pos_list.push_back(_ModelTrans->position.y);
+	pos_list.push_back(_ModelTrans->position.z);
+	jn["position"] = pos_list;
+	nlohmann::json rot_list = nlohmann::json::array();
+	rot_list.push_back(_ModelTrans->rotation.x);
+	rot_list.push_back(_ModelTrans->rotation.y);
+	rot_list.push_back(_ModelTrans->rotation.z);
+	jn["rotation"] = rot_list;
+	nlohmann::json scale_list = nlohmann::json::array();
+	scale_list.push_back(_ModelTrans->scale.x);
+	scale_list.push_back(_ModelTrans->scale.y);
+	scale_list.push_back(_ModelTrans->scale.z);
+	jn["scale"] = scale_list;
+
+	nlohmann::json cube2_list = nlohmann::json::array();
+	for (int i = 0; i < cube_size; i++)
+	{
+		cube2_list.push_back(cube2[i]);
+	}
+	jn["cube2"] = cube2_list;
+
+	//cout << jn.dump() << endl;
+	return jn.dump();
+}
+
+Redactor Redactor::deserialize(const std::string& data)
+{
+	return Redactor();
+}
+
 void Redactor::is_Drag()
 {
 	if (is_drag)
@@ -229,6 +278,16 @@ void Redactor::detail_up()
 	for (int i = 0; i < verts; i++)
 		drag_list[i] = false;
 	cube1 = cube2;
+}
+
+Redactor::~Redactor()
+{
+	countOfcubes--;
+
+	delete[] cube0;
+//	delete[] cube1;
+	delete[] cube2;
+	delete[] drag_list;
 }
 
 glm::vec3 Redactor::normal(glm::vec3 a, glm::vec3 b)
