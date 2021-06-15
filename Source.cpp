@@ -46,13 +46,7 @@ GLuint MenuArrayO, MenuBO;
 int sw, sh;
 int axis;
 
-typedef struct
-{
-	string name;
-	ModelTransform butTrans ;	
-//	BOOL hover;
-	Color color ;
-}TButton;
+
 TButton btn[countOfButton] = {
 { "save",{ glm::vec3(0.f, 0.5f, 0.f),
 			glm::vec3(0.f, 0.0f, 0.f),
@@ -70,11 +64,7 @@ TButton btn[countOfButton] = {
 			glm::vec3(0.f, 0.f, 0.f),
 			glm::vec3(0.5f, 0.25f, 1.f) },{ 0.0f, 0.0f, 0.0f, 1.0f }}
 };
-TButton pointInCenter = {
- "cursor",{ glm::vec3(0.f, 0.5f, 0.f),
-			glm::vec3(0.f, 0.0f, 0.f),
-			glm::vec3(0.5f, 0.25f, 1.f) } ,{ 0.0f, 0.6f, 0.6f, 1.0f }
-};
+
 glm::mat4 p;
 glm::mat4 v;
 glm::mat4 pv;
@@ -175,6 +165,11 @@ void ShowMenu()
 {
 	for (int i = 0; i < countOfButton; i++)
 		TButton_Show(btn[i]);
+}
+
+void ShowPointInCenter()
+{
+		TButton_Show((*Red[0]).pointInCenter);
 }
 
 void OpenMenu()
@@ -592,32 +587,50 @@ int main()
 			newTime = glfwGetTime();
 			deltaTime = newTime - oldTime;
 			oldTime = newTime;
+			old_cursor = camera.Position + camera.Front;
 			processInput(win, deltaTime);
-			old_cursor = (*Red[0]).cursorTrans->position;
-			(*Red[0]).cursorTrans->position = camera.Position + camera.Front;
+		//	old_cursor = (*Red[0]).cursorTrans->position;
+			(*Red[0]).cursorTrans->position = camera.Position;// +camera.Front;////////////////!!!!!!!!!!!!!!!!!!!!!!!!
 			(*Red[0]).red_cursor();
-
+			(*Red[0]).set_front(camera.Front);
 			for (int i = 0; i < (*Red[0]).countOfcubes; i++)
 			{
-				(*Red[i]).drag_move((*Red[i]).cursorTrans->position - old_cursor);
+			//	(*Red[i]).drag_move((*Red[i]).cursorTrans->position - old_cursor);
+				(*Red[i]).drag_move(camera.Position + camera.Front - old_cursor);
 				(*Red[i]).is_Drag();
 				(*Red[i]).cursorTrans->setScale((*Red[i]).cursor_scale);
 			}
-
 			//cursor
+	//		glBindVertexArray(CursorArrayO);
+	//		model = glm::mat4(1.0f);
+	//		model = glm::translate(model, (*Red[0]).cursorTrans->position);
+	//		model = glm::rotate(model, glm::radians((*Red[0]).cursorTrans->rotation.x), glm::vec3(1.f, 0.f, 0.f));
+	//		model = glm::rotate(model, glm::radians((*Red[0]).cursorTrans->rotation.y), glm::vec3(0.f, 1.f, 0.f));
+	//		model = glm::rotate(model, glm::radians((*Red[0]).cursorTrans->rotation.z), glm::vec3(0.f, 0.f, 1.f));
+	//		model = glm::scale(model, (*Red[0]).cursorTrans->scale / 2.f);
+	//		cursor_shader->use();
+	//		cursor_shader->setVec3("PointsColor", (*Red[0]).cursorColor);
+	//		cursor_shader->setMatrix4F("pv", pv);
+	//		cursor_shader->setMatrix4F("model", model);
+	//		glDrawArrays(GL_TRIANGLES, 0, 36);
+		//////////////////////////////////////////////////////////////////////////////////////
 			glBindVertexArray(CursorArrayO);
-			model = glm::mat4(1.0f);
-			model = glm::translate(model, (*Red[0]).cursorTrans->position);
-			model = glm::rotate(model, glm::radians((*Red[0]).cursorTrans->rotation.x), glm::vec3(1.f, 0.f, 0.f));
-			model = glm::rotate(model, glm::radians((*Red[0]).cursorTrans->rotation.y), glm::vec3(0.f, 1.f, 0.f));
-			model = glm::rotate(model, glm::radians((*Red[0]).cursorTrans->rotation.z), glm::vec3(0.f, 0.f, 1.f));
-			model = glm::scale(model, (*Red[0]).cursorTrans->scale / 2.f);
-			cursor_shader->use();
-			cursor_shader->setVec3("PointsColor", (*Red[0]).cursorColor);
-			cursor_shader->setMatrix4F("pv", pv);
-			cursor_shader->setMatrix4F("model", model);
-			glDrawArrays(GL_TRIANGLES, 0, 36);
-
+			if(false)
+			for (int i =0; i < (*Red[0]).accuracy; i++)
+			{
+				model = glm::mat4(1.0f);
+				model = glm::translate(model, (*Red[0]).cursorTrans->position+glm::vec3(0.01f * camera.Front.x  * i, 0.01f * camera.Front.y  * i, 0.01f * camera.Front.z * i));
+				model = glm::rotate(model, glm::radians((*Red[0]).cursorTrans->rotation.x ), glm::vec3(1.f, 0.f, 0.f));
+				model = glm::rotate(model, glm::radians((*Red[0]).cursorTrans->rotation.y ), glm::vec3(0.f, 1.f, 0.f));
+				model = glm::rotate(model, glm::radians((*Red[0]).cursorTrans->rotation.z), glm::vec3(0.f, 0.f, 1.f));
+				model = glm::scale(model, (*Red[0]).cursorTrans->scale / 2.f);
+				cursor_shader->use();
+				cursor_shader->setVec3("PointsColor", (*Red[0]).cursorColor);
+				cursor_shader->setMatrix4F("pv", pv);
+				cursor_shader->setMatrix4F("model", model);
+				glDrawArrays(GL_TRIANGLES, 0, 36);
+			}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 			// LIGH
 			lightTrans.position = lightPos;
 			model = glm::mat4(1.0f);
@@ -630,6 +643,7 @@ int main()
 			glDrawArrays(GL_TRIANGLES, 0, 36);
 
 			//points_cubs
+
 			for (int j = 0; j <(*Red[0]).countOfcubes; j++)
 			{
 				if (choise != j)
@@ -651,15 +665,13 @@ int main()
 					glDrawArrays(GL_TRIANGLES, 0, 36);
 				}
 			}
-			
 
+			// Red objects
 			for (int i = 0; i < (*Red[0]).countOfcubes; i++)
 			{
 				glBindVertexArray((*Red[i]).VAO_polygon);
 				glBindBuffer(GL_ARRAY_BUFFER, (*Red[i]).VBO_polygon);
 				glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (*Red[i]).cube_size, (*Red[i]).cube2, GL_DYNAMIC_DRAW);
-				//	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
-				//	glEnableVertexAttribArray(0);
 				(*Red[i])._ModelTrans->setScale((*Red[i]).cube_scale);
 				*(*Red[i]).model = glm::mat4(1.0f);
 				*(*Red[i]).model = glm::translate (*((*Red[i]).model),			(*Red[i])._ModelTrans->position);
@@ -678,6 +690,9 @@ int main()
 				polygon_shader->setVec3("ambientColor", ambientColor);
 				glDrawArrays(GL_TRIANGLES, 0, (*Red[i]).verts);
 			}
+			ShowPointInCenter();
+		//	cout << "Y = " << camera.Yaw << "P = " << camera.Pitch << endl;
+		//	cout << "FRONT : " << camera.Front.x << "  " << camera.Front.y << "  " << camera.Front.z << endl;
 		}
 
 		glfwSwapBuffers(win);

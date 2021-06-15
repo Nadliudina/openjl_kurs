@@ -3,9 +3,12 @@ float Redactor::cursor_scale;
 float* Redactor::cursor_cube = nullptr;
 bool Redactor::is_drag;
 int Redactor::countOfcubes;
+int Redactor::accuracy;
+int Redactor::selected_accuracy;
 ModelTransform* Redactor::cursorTrans = nullptr;
 glm::vec3 Redactor::cursorColor;
-
+TButton Redactor::pointInCenter;
+glm::vec3 Redactor::frontOfCamera;
  Redactor::Redactor()
 {
 	cube0 = new float[324];
@@ -126,27 +129,38 @@ glm::vec3 Redactor::cursorColor;
 									 glm::vec3(1.f, 1.f, 1.f) };	// scale
 
 	cube_scale = 1.0f;
-	cursor_scale =  0.08f;
+	cursor_scale =  0.03f;
 	is_drag = false;
 	//cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+	pointInCenter = {
+ "cursor",{ glm::vec3(-0.f, 0.0f, 0.f),
+			glm::vec3(0.f, 0.0f, 0.f),
+			glm::vec3(0.05f, 0.05f, 0.05f) } ,{ 1.0f, 1.f, 1.f, 1.0f }
+	};
+	accuracy = 5000;
 }
 
 void Redactor::red_cursor()
 {
-	if(!is_drag)
-	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+	if (!is_drag)
+	{
+		cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+		pointInCenter.color.r = 0.85f;
+		pointInCenter.color.g = 0.2f;
+		pointInCenter.color.b = 0.2f;
+	}
 }
 
-void Redactor::saveAll( Redactor* ptr)
-{
-	string str;
-	for (int i = 0; i < countOfcubes; i++)
-	{
-		cout <<"\n___"<< countOfcubes<<" __________________________________________________\n";
-		str += 	ptr[i].serialize();
-	}
-	cout << endl << str << endl;
-}
+//void Redactor::saveAll( Redactor* ptr)
+//{
+//	string str;
+//	for (int i = 0; i < countOfcubes; i++)
+//	{
+//		cout <<"\n___"<< countOfcubes<<" __________________________________________________\n";
+//		str += 	ptr[i].serialize();
+//	}
+//	cout << endl << str << endl;
+//}
 
 string Redactor::serialize()
 {
@@ -190,8 +204,7 @@ void Redactor::is_Drag()
 {
 	if (is_drag)
 		return;
-	//cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
-
+	
 	glm::vec4 Position;
 	glm::vec4 inPos= glm::vec4(0.f,0.f,0.f,1.f);
 		
@@ -203,15 +216,21 @@ void Redactor::is_Drag()
 		inPos.a = 1.f;
 
 		Position = *model * inPos;
-		                                
-		if ((Position.x  <= +cursorTrans->scale.x / 2 + cursorTrans->position.x)
-		&&  (Position.x  >= -cursorTrans->scale.x / 2 + cursorTrans->position.x) &&
-			(Position.y  <= +cursorTrans->scale.y / 2 + cursorTrans->position.y)
-		&&  (Position.y  >= -cursorTrans->scale.y / 2 + cursorTrans->position.y) &&
-			(Position.z  <= +cursorTrans->scale.z / 2 + cursorTrans->position.z)
-		&&  (Position.z  >= -cursorTrans->scale.z / 2 + cursorTrans->position.z))
+		for (int j = 0; j < accuracy; j++)
+		if ((Position.x  <= +cursorTrans->scale.x / 2 + cursorTrans->position.x + 0.01f * frontOfCamera.x * j)
+		&&  (Position.x  >= -cursorTrans->scale.x / 2 + cursorTrans->position.x + 0.01f * frontOfCamera.x * j) &&
+			(Position.y  <= +cursorTrans->scale.y / 2 + cursorTrans->position.y + 0.01f * frontOfCamera.y * j)
+		&&  (Position.y  >= -cursorTrans->scale.y / 2 + cursorTrans->position.y + 0.01f * frontOfCamera.y * j) &&
+			(Position.z  <= +cursorTrans->scale.z / 2 + cursorTrans->position.z + 0.01f * frontOfCamera.z * j)
+		&&  (Position.z  >= -cursorTrans->scale.z / 2 + cursorTrans->position.z + 0.01f * frontOfCamera.z * j))
 		{
-			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f); break;
+			cout << "J= " << j << endl;
+			selected_accuracy = j;
+			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f);
+			pointInCenter.color.r = 0.2f;
+			pointInCenter.color.g = 0.85f;
+			pointInCenter.color.b = 0.2f;
+			break;
 		}
 	}
 }
@@ -306,23 +325,23 @@ void Redactor::drag()
 		inPos.z = cube2[i * 9 + 2];
 		inPos.a = 1.f;
 		Position = *model * inPos;
-		///
-
-	   if ((Position.x <= +cursorTrans->scale.x / 2 + cursorTrans->position.x)
-		&& (Position.x >= -cursorTrans->scale.x / 2 + cursorTrans->position.x) &&
-		   (Position.y <= +cursorTrans->scale.y / 2 + cursorTrans->position.y)
-		&& (Position.y >= -cursorTrans->scale.y / 2 + cursorTrans->position.y) &&
-		   (Position.z <= +cursorTrans->scale.z / 2 + cursorTrans->position.z)
-	   	&& (Position.z >= -cursorTrans->scale.z / 2 + cursorTrans->position.z))
+		drag_list[i] = false;
+	for (int j = 0; j < accuracy; j++)
+		if ((Position.x  <= +cursorTrans->scale.x / 2 + cursorTrans->position.x + 0.01f * frontOfCamera.x * j)
+		&&  (Position.x  >= -cursorTrans->scale.x / 2 + cursorTrans->position.x + 0.01f * frontOfCamera.x * j) &&
+			(Position.y  <= +cursorTrans->scale.y / 2 + cursorTrans->position.y + 0.01f * frontOfCamera.y * j)
+		&&  (Position.y  >= -cursorTrans->scale.y / 2 + cursorTrans->position.y + 0.01f * frontOfCamera.y * j) &&
+			(Position.z  <= +cursorTrans->scale.z / 2 + cursorTrans->position.z + 0.01f * frontOfCamera.z * j)
+		&&  (Position.z  >= -cursorTrans->scale.z / 2 + cursorTrans->position.z + 0.01f * frontOfCamera.z * j))
 		{
 			drag_list[i] = true;
 			is_drag = true;
 			cursorColor = glm::vec3(0.2f, 0.2f, 0.85f);
+			pointInCenter.color.r = 0.2f;
+			pointInCenter.color.g = 0.2f;
+			pointInCenter.color.b = 0.85f;
 		}
-		else
-		{
-			drag_list[i] = false;
-		}
+	
 	}
 }
 
@@ -347,7 +366,10 @@ void Redactor::drop()
 	is_drag = false;
 	for (int i = 0; i < verts; i++)
 	{
-		cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+	//	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
+	//	pointInCenter.color.r = 0.85f;
+	//	pointInCenter.color.g = 0.2f;
+	//	pointInCenter.color.b = 0.2f;
 		drag_list[i] = false;
 	}
 }
@@ -367,6 +389,11 @@ void Redactor::drag_move_to(glm::vec3 move_to)
 	cout << endl;
 }
 
+void Redactor::set_front(glm::vec3 inFront)
+{
+	frontOfCamera = inFront;
+}
+
 void Redactor::drag_move(glm::vec3 move_to)
 {
 	glm::vec4 move_model = glm::vec4(move_to, 1.f) ** model;
@@ -374,10 +401,9 @@ void Redactor::drag_move(glm::vec3 move_to)
 	{
 		if (drag_list[i] == true)
 		{
-			cube2[i * 9 + 0] += move_model.x / _ModelTrans->scale.x/ _ModelTrans->scale.x;
-			cube2[i * 9 + 1] += move_model.y / _ModelTrans->scale.y/ _ModelTrans->scale.y;
-			cube2[i * 9 + 2] += move_model.z / _ModelTrans->scale.z/ _ModelTrans->scale.z;
+			cube2[i * 9 + 0] += move_model.x / _ModelTrans->scale.x/ _ModelTrans->scale.x*selected_accuracy*0.01f;
+			cube2[i * 9 + 1] += move_model.y / _ModelTrans->scale.y/ _ModelTrans->scale.y*selected_accuracy*0.01f;
+			cube2[i * 9 + 2] += move_model.z / _ModelTrans->scale.z/ _ModelTrans->scale.z*selected_accuracy*0.01f;
 		}
 	}
-	cout << endl;
 }

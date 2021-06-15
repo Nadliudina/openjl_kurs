@@ -31,8 +31,18 @@ struct Color {
 	float r, g, b, a;
 };
 
+typedef struct
+{
+	string name;
+	ModelTransform butTrans;
+	Color color;
+}TButton;
+
 class Redactor{
 public :
+	static int		accuracy;//cursor
+	static int		selected_accuracy;
+	static glm::vec3 frontOfCamera;
 	unsigned int	VBO_polygon, VAO_polygon;
 	static int		countOfcubes;
 	static float	cursor_scale;
@@ -47,8 +57,9 @@ public :
 	
 	static ModelTransform* cursorTrans;
 	ModelTransform* _ModelTrans;
-	
 	static glm::vec3 cursorColor ;
+
+	static TButton pointInCenter ;
 
 	glm::vec3 point0;// for x4
 	glm::vec3 point1;
@@ -66,7 +77,6 @@ public :
 	Redactor();
 	~Redactor();
 	
-
 	void x4_triangle(glm::vec3 a, glm::vec3 b, glm::vec3 c);
 	glm::vec3 normal(glm::vec3 a, glm::vec3 b);
 	void set_normals();
@@ -77,8 +87,9 @@ public :
 	void drag_move(glm::vec3 move_to);
 	void drag_move_to(glm::vec3 move_to);
 	void red_cursor();
+	void set_front(glm::vec3 inFront);
 	
-	void saveAll	( Redactor* ptr);
+	//void saveAll	( Redactor* ptr);
 	string serialize();
 	Redactor deserialize(const std::string& data);
 
