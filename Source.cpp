@@ -50,25 +50,30 @@ typedef struct
 {
 	string name;
 	ModelTransform butTrans ;	
-	BOOL hover;
+//	BOOL hover;
 	Color color ;
 }TButton;
 TButton btn[countOfButton] = {
 { "save",{ glm::vec3(0.f, 0.5f, 0.f),
 			glm::vec3(0.f, 0.0f, 0.f),
-			glm::vec3(0.5f, 0.25f, 1.f) }   ,FALSE ,{ 0.0f, 0.6f, 0.6f, 1.0f }},
+			glm::vec3(0.5f, 0.25f, 1.f) } ,{ 0.0f, 0.6f, 0.6f, 1.0f }},
 
 { "add", { glm::vec3(0.0f, 0.f, 0.f),
 			glm::vec3(0.f, 0.f, 0.f),
-			glm::vec3(0.5f, 0.25f, 1.f)} ,FALSE ,{ 0.0f, 1.f, 0.2f, 1.0f }},
+			glm::vec3(0.5f, 0.25f, 1.f)} ,{ 0.0f, 1.f, 0.2f, 1.0f }},
 
 { "quit", { glm::vec3(0.f,-0.5f, 0.f),
 			glm::vec3(0.f, 0.f, 0.f),
-			glm::vec3(0.5f, 0.25f, 1.f) },FALSE ,{ 1.0f, 0.0f, 0.0f, 1.0f }},
+			glm::vec3(0.5f, 0.25f, 1.f) },{ 1.0f, 0.0f, 0.0f, 1.0f }},
 
 { "load", { glm::vec3(0.f,-1.f, 0.f),
 			glm::vec3(0.f, 0.f, 0.f),
-			glm::vec3(0.5f, 0.25f, 1.f) },FALSE ,{ 0.0f, 0.0f, 0.0f, 1.0f }}
+			glm::vec3(0.5f, 0.25f, 1.f) },{ 0.0f, 0.0f, 0.0f, 1.0f }}
+};
+TButton pointInCenter = {
+ "cursor",{ glm::vec3(0.f, 0.5f, 0.f),
+			glm::vec3(0.f, 0.0f, 0.f),
+			glm::vec3(0.5f, 0.25f, 1.f) } ,{ 0.0f, 0.6f, 0.6f, 1.0f }
 };
 glm::mat4 p;
 glm::mat4 v;
@@ -183,6 +188,7 @@ void CloseMenu()
 	background = { 0.f, 0.f, 0.f, 1.0f };
 	glfwSetInputMode(win, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
+
 void AddNewRed()
 {
 	static float temp = 2.1f;
@@ -212,35 +218,6 @@ void AddNewRed()
 
 }
 
-
-//void from_json(const nlohmann::json& j, Redactor& p) {
-//	j.at("cube_scale").get_to(p.cube_scale);
-//	j.at("verts").get_to(p.verts);
-//	j.at("cube_size").get_to(p.cube_size);
-//	j.at("position[0]").get_to(p._ModelTrans->position.x);
-//	j.at("position[1]").get_to(p._ModelTrans->position.y);
-//	j.at("position[2]").get_to(p._ModelTrans->position.z);
-//	j.at("rotation[0]").get_to(p._ModelTrans->rotation.x);
-//	j.at("rotation[1]").get_to(p._ModelTrans->rotation.y);
-//	j.at("rotation[2]").get_to(p._ModelTrans->rotation.z);
-//	j.at("scale[0]")   .get_to(p._ModelTrans->   scale.x);
-//	j.at("scale[1]")   .get_to(p._ModelTrans->   scale.y);
-//	j.at("scale[2]")   .get_to(p._ModelTrans->   scale.z);
-//	j.at("cube2").		get_to(*p.cube2);
-//	 
-//}
-//
-//template <typename Redactor, size_t N>
-//void from_json(const nlohmann::json& j, Redactor(&t)[N]) {
-//	if (j.size() > N) {
-//		throw std::runtime_error("JSON array too large");
-//	}
-//	size_t index = 0;
-//	for (auto& item : j) {
-//		from_json(item, *t[index++]);
-//	}
-//}
-
 void CheckMenuPress(double x,double y) {
 	int x1, y1, x2, y2,swtc=-1;
 
@@ -266,13 +243,6 @@ void CheckMenuPress(double x,double y) {
 	else
 	if (btn[swtc].name == "load")
 	{
-	//	delete  Red[(*Red[0]).countOfcubes - 1];
-	//	delete  Red[choise];
-	//	for (int i = 0; i < (*Red[0]).countOfcubes - 1-choise; i++)
-	//	{
-	//		Red[i + choise] = Red[i + choise + 1];
-	//	}
-
 	//	start = true;
 
 		string str;
@@ -283,13 +253,11 @@ void CheckMenuPress(double x,double y) {
 		iif >> json;
 		iif.close();
 
-	//	int count=0;	//iif.open("count.txt");	iif >> i;	iif.close();
 		double pos[3]; int ii = 0;  float* c2;
 		cout << endl << endl;
 		if (json.find("x2") != json.end())
 		{
 			int temp = (*Red[0]).countOfcubes;	
-		//	(*Red[0]).countOfcubes = 0;
 			for ( int i =-1+ temp;i>=0; i--)
 			{
 				(*Red[i]).~Redactor();
@@ -304,8 +272,6 @@ void CheckMenuPress(double x,double y) {
 				{
 					(*Red[(*Red[0]).countOfcubes - 1]).detail_up();
 				}
-			//	(*Red[(*Red[0]).countOfcubes-1]).verts = stoi(val["verts"].dump());
-			//	(*Red[(*Red[0]).countOfcubes-1]).cube_size = stoi(val["cube_size"].dump());
 				(*Red[(*Red[0]).countOfcubes-1]).cube_scale = stof(val["cube_scale"].dump());
 				ii = 0;
 				for (auto const& val1 : val["position"]) {
@@ -332,24 +298,14 @@ void CheckMenuPress(double x,double y) {
 				(*Red[(*Red[0]).countOfcubes-1])._ModelTrans->scale.y = pos[1];
 				(*Red[(*Red[0]).countOfcubes-1])._ModelTrans->scale.z = pos[2];
 				ii = 0;
-				//c2 = new float[1];
-			//	(*Red[(*Red[0]).countOfcubes - 1]).cube2 = new float[(*Red[(*Red[0]).countOfcubes - 1]).cube_size];
 				for (auto const& val1 : val["cube2"]) {
-				//	c2 = (float*)realloc(c2, (ii +1)* sizeof(float));
-				//	c2[ii] = stof(val1.dump());
-				//	(*Red[(*Red[0]).countOfcubes - 1]).cube2 = (float*)realloc((*Red[(*Red[0]).countOfcubes - 1]).cube2, (static_cast<unsigned long long>(ii) + 1) * sizeof(float));
-				//	(*Red[(*Red[0]).countOfcubes - 1]).cube2[ii]= stof(val1.dump());
 					(*Red[(*Red[0]).countOfcubes - 1]).cube2[ii] = stof(val1.dump());
 					ii++;
 				}
-		//		(*Red[(*Red[0]).countOfcubes-1]).cube2 = c2;
-		//		count++;
 			}
 			(*Red[(*Red[0]).countOfcubes - 1]).drop();
 			choise = 0;
-
 		}
-	
 	}
 	else
 	if (btn[swtc].name == "quit")

@@ -153,7 +153,6 @@ string Redactor::serialize()
 	nlohmann::json jn{};
 	jn["cube_scale"]	= cube_scale;
 	jn["verts"]			= verts;
-	jn["cube_size"]		= cube_size;
 	//_ModelTrans
 	nlohmann::json pos_list = nlohmann::json::array();
 	pos_list.push_back(_ModelTrans->position.x);
