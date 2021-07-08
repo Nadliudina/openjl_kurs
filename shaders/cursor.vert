@@ -1,14 +1,24 @@
+//#version 330 core
+//layout (location = 0) in vec3 inPos;
+//layout (location = 1) in vec3 inNormal;
+//layout (location = 2) in vec2 inColors;
+//
+//uniform mat4 pv;
+//uniform mat4 model;
+//
+//void main()
+//{
+//	gl_PointSize =11;
+//	gl_Position = pv * model * vec4(inPos, 1.0f);
+//	
+//}
+//
 #version 330 core
 layout (location = 0) in vec3 inPos;
-layout (location = 1) in vec3 inNormal;
-layout (location = 2) in vec2 inColors;
-
-uniform mat4 pv;
+ 
 uniform mat4 model;
-
+out vec3 vertColor;
 void main()
 {
-	gl_PointSize =11;
-	gl_Position = pv * model * vec4(inPos, 1.0f);
-	
+	gl_Position =  model * vec4(inPos, 1.0);
 }

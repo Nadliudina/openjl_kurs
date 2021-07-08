@@ -9,6 +9,8 @@ ModelTransform* Redactor::cursorTrans = nullptr;
 glm::vec3 Redactor::cursorColor;
 TButton Redactor::pointInCenter;
 glm::vec3 Redactor::frontOfCamera;
+bool Redactor::drag_all_points;
+
  Redactor::Redactor()
 {
 	cube0 = new float[324];
@@ -129,7 +131,7 @@ glm::vec3 Redactor::frontOfCamera;
 									 glm::vec3(1.f, 1.f, 1.f) };	// scale
 
 	cube_scale = 1.0f;
-	cursor_scale =  0.03f;
+	cursor_scale =  0.04f;
 	is_drag = false;
 	//cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
 	pointInCenter = {
@@ -137,7 +139,8 @@ glm::vec3 Redactor::frontOfCamera;
 			glm::vec3(0.f, 0.0f, 0.f),
 			glm::vec3(0.05f, 0.05f, 0.05f) } ,{ 1.0f, 1.f, 1.f, 1.0f }
 	};
-	accuracy = 5000;
+	accuracy = 500;
+	drag_all_points = false;
 }
 
 void Redactor::red_cursor()
@@ -224,14 +227,13 @@ void Redactor::is_Drag()
 			(Position.z  <= +cursorTrans->scale.z / 2 + cursorTrans->position.z + 0.01f * frontOfCamera.z * j)
 		&&  (Position.z  >= -cursorTrans->scale.z / 2 + cursorTrans->position.z + 0.01f * frontOfCamera.z * j))
 		{
-			cout << "J= " << j << endl;
-			selected_accuracy = j;
 			cursorColor = glm::vec3(0.2f, 0.85f, 0.2f);
 			pointInCenter.color.r = 0.2f;
 			pointInCenter.color.g = 0.85f;
 			pointInCenter.color.b = 0.2f;
 			break;
 		}
+
 	}
 }
 
@@ -315,9 +317,12 @@ glm::vec3 Redactor::normal(glm::vec3 a, glm::vec3 b)
 
 void Redactor::drag()
 {
+	if (is_drag)
+		return;
 	glm::vec4 Position;
 	glm::vec4 inPos = glm::vec4(0.f, 0.f, 0.f, 1.f);
-
+	bool tru = false;	
+	selected_accuracy = accuracy;
 	for (int i = 0; i < verts; i++)
 	{
 		inPos.x = cube2[i * 9 + 0];
@@ -326,6 +331,8 @@ void Redactor::drag()
 		inPos.a = 1.f;
 		Position = *model * inPos;
 		drag_list[i] = false;
+	
+	
 	for (int j = 0; j < accuracy; j++)
 		if ((Position.x  <= +cursorTrans->scale.x / 2 + cursorTrans->position.x + 0.01f * frontOfCamera.x * j)
 		&&  (Position.x  >= -cursorTrans->scale.x / 2 + cursorTrans->position.x + 0.01f * frontOfCamera.x * j) &&
@@ -334,14 +341,28 @@ void Redactor::drag()
 			(Position.z  <= +cursorTrans->scale.z / 2 + cursorTrans->position.z + 0.01f * frontOfCamera.z * j)
 		&&  (Position.z  >= -cursorTrans->scale.z / 2 + cursorTrans->position.z + 0.01f * frontOfCamera.z * j))
 		{
+			if (selected_accuracy < j)		break;
+			if (selected_accuracy > j)
+			{
+				selected_accuracy = j;	cout << "selected_accuracy= " << j << endl;
+			}
 			drag_list[i] = true;
 			is_drag = true;
 			cursorColor = glm::vec3(0.2f, 0.2f, 0.85f);
 			pointInCenter.color.r = 0.2f;
 			pointInCenter.color.g = 0.2f;
 			pointInCenter.color.b = 0.85f;
+			tru = true;
+			
 		}
-	
+	if (tru&&drag_all_points)
+	{
+		for (int e = 0; e < verts; e++)
+		{
+			drag_list[e] = true;
+		}
+		break;
+	}
 	}
 }
 
@@ -364,14 +385,31 @@ void Redactor::set_normals()
 void Redactor::drop()
 {
 	is_drag = false;
+	//float x=0,y=0,z=0;
+	//static float xold = 0,yold=0,zold=0;
 	for (int i = 0; i < verts; i++)
 	{
-	//	cursorColor = glm::vec3(0.85f, 0.2f, 0.2f);
-	//	pointInCenter.color.r = 0.85f;
-	//	pointInCenter.color.g = 0.2f;
-	//	pointInCenter.color.b = 0.2f;
+//		x += cube2[i * 9 + 0];
+//		y += cube2[i * 9 +1];
+//		z += cube2[i * 9 + 2];
 		drag_list[i] = false;
 	}
+//	x = x / verts;
+//	y = y / verts;
+//	z = z / verts;
+//
+//	for (int i = 0; i < verts; i++)
+//	{
+//		cube2[i * 9 + 0]-=x-xold;
+//		cube2[i * 9 + 1]-=y-yold;
+//		cube2[i * 9 + 2]-=z-zold;
+//	}
+//	_ModelTrans->position.x += x - xold;
+//	xold = x;
+//	_ModelTrans->position.y += y - yold;
+//	yold = y;
+//	_ModelTrans->position.z += z - zold;
+//	zold = z;
 }
 
 void Redactor::drag_move_to(glm::vec3 move_to)
@@ -396,14 +434,27 @@ void Redactor::set_front(glm::vec3 inFront)
 
 void Redactor::drag_move(glm::vec3 move_to)
 {
+	//bool tru = false;
 	glm::vec4 move_model = glm::vec4(move_to, 1.f) ** model;
+	
 	for (int i = 0; i < verts; i++)
 	{
 		if (drag_list[i] == true)
 		{
-			cube2[i * 9 + 0] += move_model.x / _ModelTrans->scale.x/ _ModelTrans->scale.x*selected_accuracy*0.01f;
-			cube2[i * 9 + 1] += move_model.y / _ModelTrans->scale.y/ _ModelTrans->scale.y*selected_accuracy*0.01f;
-			cube2[i * 9 + 2] += move_model.z / _ModelTrans->scale.z/ _ModelTrans->scale.z*selected_accuracy*0.01f;
+		//	tru = true;
+		//	if (!drag_all_points)
+		//	{
+				cube2[i * 9 + 0] += move_model.x / _ModelTrans->scale.x / _ModelTrans->scale.x * selected_accuracy * 0.01f;
+				cube2[i * 9 + 1] += move_model.y / _ModelTrans->scale.y / _ModelTrans->scale.y * selected_accuracy * 0.01f;
+				cube2[i * 9 + 2] += move_model.z / _ModelTrans->scale.z / _ModelTrans->scale.z * selected_accuracy * 0.01f;
+		//	}
 		}
 	}
+//	if (tru&& drag_all_points)
+//	{
+//		_ModelTrans->position.x += move_model.x / _ModelTrans->scale.x / _ModelTrans->scale.x * selected_accuracy * 0.01f;
+//		_ModelTrans->position.y += move_model.y / _ModelTrans->scale.y / _ModelTrans->scale.y * selected_accuracy * 0.01f;
+//		_ModelTrans->position.z += move_model.z / _ModelTrans->scale.z / _ModelTrans->scale.z * selected_accuracy * 0.01f;
+//	}
+
 }

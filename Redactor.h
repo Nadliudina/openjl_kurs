@@ -54,6 +54,7 @@ public :
 	float			* cube0,* cube1, * cube2;
 	bool			* drag_list;
 	glm::mat4		* model;
+	static bool		drag_all_points;
 	
 	static ModelTransform* cursorTrans;
 	ModelTransform* _ModelTrans;
